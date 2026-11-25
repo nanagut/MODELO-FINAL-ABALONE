@@ -1,0 +1,1203 @@
+--- 
+title: "Análisis estadístico de la base de datos Abalone"
+author: "Mariana Gutiérrez - Daniela Idarraga"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, warning = FALSE, message = FALSE,
+  fig.align = "center", fig.width = 9, fig.height = 5
+)
+set.seed(123)
+```
+
+# Librerías y funciones auxiliares
+
+```{r librerias}
+library(tidyverse)
+library(Amelia)
+library(moments)
+library(patchwork)
+library(GGally)
+library(effsize)
+library(nortest)
+library(car)
+library(rstatix)
+library(lmtest)
+library(olsrr)
+library(mctest)
+library(knitr)
+```
+
+```{r funciones-auxiliares}
+# Paleta del trabajo
+col_fill  <- "#FFE1FF"
+col_line  <- "#CD96CD"
+col_dark  <- "#8B668B"
+col_point <- "#EEAEEE"
+col_sexo  <- c(Hembra = "#C71585", Macho = "#6A5ACD", Infante = "#DDA0DD")
+
+# Formato de números y p-valores para el texto
+fmt <- function(x, d = 2) format(round(x, d), nsmall = d, big.mark = ",")
+fp  <- function(p) ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3))
+decision <- function(p, alfa = 0.05) ifelse(p < alfa, "se rechaza H0", "no se rechaza H0")
+
+# Puntos que el diagrama de caja marca como atípicos (fuera de Q1 - 1.5*RIC y Q3 + 1.5*RIC)
+contar_atipicos <- function(x) {
+  q1 <- unname(quantile(x, 0.25)); q3 <- unname(quantile(x, 0.75)); r <- q3 - q1
+  sum(x < q1 - 1.5 * r | x > q3 + 1.5 * r)
+}
+
+# Resumen descriptivo de una variable numérica
+resumen <- function(x) {
+  tibble(
+    n = length(x), media = mean(x), sd = sd(x), mediana = median(x),
+    RIC = IQR(x), Q1 = unname(quantile(x, 0.25)), Q3 = unname(quantile(x, 0.75)),
+    minimo = min(x), maximo = max(x),
+    asimetria = skewness(x), curtosis = kurtosis(x), atipicos = contar_atipicos(x)
+  )
+}
+
+tabla <- function(df, cap = NULL, d = 3) kable(df, digits = d, caption = cap)
+```
+
+# Introducción
+
+## Contexto de los datos
+
+La base de datos **Abalone** proviene del repositorio UCI Machine Learning y fue publicada originalmente por Nash et al. (1994) en un estudio sobre la biología poblacional del abulón (*Haliotis*) en Tasmania. Contiene 4177 individuos con 8 características físicas y el número de anillos de la concha.
+
+La edad de un abulón se determina cortando la concha, tiñéndola y contando los anillos al microscopio, lo cual es lento y destruye al individuo. Se sabe que **edad (años) ≈ Anillos + 1.5**. Por eso resulta útil predecir el número de anillos a partir de medidas físicas fáciles de tomar.
+
+## Objetivo
+
+Analizar la relación entre las características físicas del abulón y su número de anillos (edad), comparar los anillos entre sexos y construir modelos de regresión lineal simple y múltiple que permitan predecir el número de anillos.
+
+## Diccionario de variables
+
+En la base original, las variables continuas están divididas entre 200. En este trabajo se multiplican por 200 para expresarlas en sus unidades reales (mm y g).
+
+```{r diccionario}
+tibble(
+  Variable = c("Sexo", "Largo", "Diametro", "Altura", "Peso", "Peso_carne",
+               "Peso_visceras", "Peso_caparazon", "Anillos"),
+  Tipo = c("Categórica nominal", rep("Cuantitativa continua", 7), "Cuantitativa discreta"),
+  Unidad = c("H / M / I", "mm", "mm", "mm", "g", "g", "g", "g", "conteo"),
+  Descripcion = c("Hembra, Macho o Infante",
+                  "Medida más larga de la concha",
+                  "Medida perpendicular al largo",
+                  "Altura con la carne dentro de la concha",
+                  "Peso total del abulón",
+                  "Peso de la carne",
+                  "Peso de las vísceras (después de desangrar)",
+                  "Peso de la concha seca",
+                  "Número de anillos (variable respuesta)")
+) %>% tabla("Diccionario de variables")
+```
+
+# Extracción, transformación y carga (ETL)
+
+## Carga de los datos
+
+```{r carga}
+data <-   read.csv("C:/Users/Mariana/OneDrive/Desktop/MODELO FINAL/data/abalone.data", header=FALSE)
+```
+
+## Exploración inicial
+
+```{r exploracion-inicial}
+head(data, 5)
+tail(data, 5)
+dim(data)
+colnames(data)
+str(data)
+```
+
+## Cambio de nombres, unidades y tipo de variable
+
+```{r transformacion}
+data2 <- data %>%
+  as.data.frame() %>%
+  setNames(c("Sexo", "Largo", "Diametro", "Altura", "Peso",
+             "Peso_carne", "Peso_visceras", "Peso_caparazon", "Anillos")) %>%
+  mutate(
+    id   = row_number(),
+    Sexo = factor(Sexo, levels = c("F", "M", "I"),
+                  labels = c("Hembra", "Macho", "Infante")),
+    across(Largo:Peso_caparazon, ~ .x * 200)
+  )
+
+str(data2)
+head(data2)
+```
+
+**INTERPRETACIÓN:**
+La tabla muestra las primeras seis observaciones de la base de datos transformada. Se observa que la variable Sexo quedó clasificada en tres categorías: Hembra, Macho e Infante. Las variables Largo, Diámetro, Altura y los diferentes pesos fueron multiplicadas por 200 para ajustar su escala. Además, se creó la variable id, que asigna un número consecutivo a cada individuo. Finalmente, la variable Anillos conserva sus valores originales y representa el número de anillos de cada abalone.
+
+# Calidad de los datos
+
+## Valores faltantes
+
+```{r faltantes}
+data2 %>%
+  summarise(across(everything(), ~ sum(is.na(.)), .names = "NA_{.col}"))
+```
+ 
+Se observa que todas las variables evaluadas presentan 0 datos faltantes, lo que indica que no hay valores vacíos en los registros.
+ 
+```{r missmap}
+missmap(data2, col = c("#8B668B", "#E6D5E6"), main = "Mapa de valores faltantes")
+```
+
+## Valores imposibles
+
+```{r calidad}
+altura_cero <- data2 %>% filter(Altura == 0)
+
+# Un componente no puede pesar más que el abulón completo
+componente_mayor <- data2 %>%
+  filter(Peso_carne > Peso | Peso_visceras > Peso | Peso_caparazon > Peso)
+
+tibble(
+  Revision = c("Altura igual a 0", "Un componente pesa más que el total"),
+  Casos = c(nrow(altura_cero), nrow(componente_mayor))
+) %>% tabla("Revisión de valores imposibles")
+
+altura_cero
+componente_mayor
+```
+
+Se realizó una revisión de valores inconsistentes en la base de datos, encontrando 1 observación con altura igual a cero y 5 observaciones en las que alguno de los componentes del abalone supera su peso total. De estos últimos casos, en cuatro el peso de la carne supera el peso total, mientras que en uno el peso del caparazón es superior.
+
+## Depuración
+
+```{r depuracion}
+abalone <- data2 %>%
+  filter(
+    Altura > 0,
+    Peso_carne <= Peso, Peso_visceras <= Peso, Peso_caparazon <= Peso
+  )
+
+n_eliminadas <- nrow(data2) - nrow(abalone)
+dim(abalone)
+```
+
+**Interpretación:**
+Se realizó la depuración de la base de datos, eliminando las observaciones que presentaban una altura igual a cero o en las que alguno de los componentes (carne, vísceras o caparazón) superaba el peso total del abalone. Como resultado, se eliminaron 6 registros que presentaban inconsistencias, conservando un total de 4.171 observaciones y 10 variables. De esta manera, se obtiene una base de datos más consistente y adecuada para continuar con los análisis estadísticos.
+
+
+# Análisis exploratorio de la variable respuesta (Anillos)
+
+## Medidas descriptivas
+
+```{r resumen-anillos}
+res_y <- resumen(abalone$Anillos)
+res_y %>% tabla("Medidas descriptivas de Anillos")
+```
+
+**Interpretación:**
+Se observa que la variable Anillos cuenta con 4.171 observaciones, una media de 9.939 y una mediana de 9, lo que indica que el número de anillos se concentra alrededor de esos valores. La desviación estándar es de 3.223 y el rango intercuartílico es de 3, mostrando cierta dispersión en los datos. Los valores oscilan entre 1 y 29 anillos. La asimetría positiva de 1.114 indica que la distribución presenta una cola hacia la derecha, mientras que la curtosis de 5.329 señala una mayor concentración y presencia de valores extremos. Finalmente, se identificaron 278 valores atípicos, lo que evidencia la presencia de observaciones alejadas del comportamiento general de los datos.
+
+```{r histograma-anillos}
+abalone %>%
+  ggplot(aes(x = Anillos)) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 1,
+                 fill = col_fill, color = col_line, alpha = 0.8) +
+  geom_density(color = col_dark, linewidth = 1.2) +
+  geom_vline(xintercept = res_y$media, linetype = "dashed", color = col_dark) +
+  geom_vline(xintercept = res_y$mediana, linetype = "dotted", color = "black") +
+  labs(title = "Distribución del número de anillos",
+       subtitle = "Línea discontinua: media | línea punteada: mediana",
+       x = "Número de anillos", y = "Densidad") +
+  theme_bw()
+```
+
+**Interpretación:**
+El histograma muestra la distribución del número de anillos de los abalones, observándose una mayor concentración de individuos entre 8 y 11 anillos, con un valor máximo de frecuencia alrededor de 9. La media (9.939) y la mediana (9) son cercanas, aunque la media es ligeramente superior. Se evidencia una asimetría positiva, debido a que la distribución presenta una cola más larga hacia la derecha, donde se encuentran los individuos con mayor número de anillos. Esto indica que la distribución no es completamente simétrica y que existen pocos individuos con cantidades elevadas de anillos.
+
+```{r boxplot-anillos, fig.height=3}
+abalone %>%
+  ggplot(aes(x = Anillos, y = "")) +
+  geom_boxplot(fill = col_fill, color = col_line) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3,
+               color = col_dark, orientation = "y") +
+  labs(title = "Diagrama de caja del número de anillos", x = "Número de anillos", y = "") +
+  theme_bw()
+```
+**Interpretación:**
+El diagrama de caja muestra que la mediana del número de anillos es de 9, mientras que el 50 % central de los datos se encuentra aproximadamente entre 8 y 11 anillos, con un rango intercuartílico de 3. Se observa la presencia de numerosos valores atípicos tanto en la parte inferior como en la superior, aunque son más abundantes hacia los valores altos, llegando hasta 29 anillos. Además, la media se encuentra por encima de la mediana, lo que coincide con la asimetría positiva observada anteriormente.
+
+## Pruebas de normalidad
+
+$H_0$: Anillos sigue una distribución normal vs. $H_1$: Anillos no sigue una distribución normal.
+
+```{r qq-anillos, fig.width=6, fig.height=5}
+qqnorm(abalone$Anillos, main = "Gráfico QQ normal de Anillos",
+       xlab = "Cuantiles teóricos", ylab = "Cuantiles muestrales", col = col_line)
+qqline(abalone$Anillos, col = col_dark, lwd = 2)
+```
+
+**Interpretación:**
+El gráfico Q-Q normal permite evaluar si la variable Anillos sigue una distribución normal. Se observa que los puntos se alejan considerablemente de la línea de referencia, especialmente en la parte superior, donde se encuentran por encima de ella. Esto indica una desviación de la normalidad y evidencia una asimetría positiva, es decir, una mayor concentración de datos en valores bajos y medios, con una cola extendida hacia los valores altos. Por lo tanto, se concluye que la variable Anillos no presenta una distribución normal.
+
+```{r normalidad-anillos}
+sw_y <- shapiro.test(abalone$Anillos)
+li_y <- lillie.test(abalone$Anillos)
+sw_y
+li_y
+
+norm_y <- tibble(
+  Prueba = c("Shapiro-Wilk", "Lilliefors (Kolmogorov-Smirnov)"),
+  Estadistico = c(sw_y$statistic, li_y$statistic),
+  p_valor = c(sw_y$p.value, li_y$p.value)
+) %>% mutate(Decision = decision(p_valor))
+
+norm_y %>% tabla("Pruebas de normalidad para Anillos", d = 4)
+```
+
+**INTERPRETACIÓN**
+Las pruebas de normalidad Shapiro-Wilk y Lilliefors presentan estadísticos de 0.9311 y 0.1455, respectivamente, con valores p iguales a 0. En ambas pruebas se rechaza la hipótesis nula (H0), que establece que los datos siguen una distribución normal. Por lo tanto, se concluye que la variable Anillos no presenta una distribución normal, lo cual coincide con lo observado en el gráfico Q-Q, donde los puntos se alejan de la línea de referencia.
+
+# Análisis de las variables independientes
+
+## Variables cuantitativas
+
+```{r resumen-predictores}
+predictores <- c("Largo", "Diametro", "Altura", "Peso",
+                 "Peso_carne", "Peso_visceras", "Peso_caparazon")
+
+res_x <- abalone %>%
+  select(all_of(predictores)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "valor") %>%
+  group_by(variable) %>%
+  summarise(resumen(valor)) %>%
+  arrange(match(variable, predictores))
+
+res_x %>% tabla("Medidas descriptivas de las variables independientes")
+```
+
+**Interpretación:**
+La tabla presenta las medidas descriptivas de las siete variables independientes, cada una con 4.171 observaciones. Se observa que Largo y Diámetro presentan asimetría negativa, mientras que las demás variables tienen asimetría positiva, especialmente Altura (3.173), que también presenta una curtosis elevada (79.903), indicando una distribución con valores extremos. Además, se identifican valores atípicos en todas las variables, destacándose Largo (49), Diámetro (59) y Peso_carne (48).
+
+```{r histogramas-predictores, fig.height=6}
+abalone %>%
+  select(all_of(predictores)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "valor") %>%
+  mutate(variable = factor(variable, levels = predictores)) %>%
+  ggplot(aes(x = valor)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 35,
+                 fill = col_fill, color = col_line) +
+  geom_density(color = col_dark, linewidth = 0.9) +
+  facet_wrap(~ variable, scales = "free", ncol = 4) +
+  labs(title = "Distribución de las variables independientes", x = "", y = "Densidad") +
+  theme_bw()
+```
+**Interpretación:**
+Los histogramas muestran la distribución de las variables independientes. Se observa que Largo y Diámetro presentan asimetría negativa, con mayor concentración de datos en valores altos. Por otro lado, Altura presenta una fuerte asimetría positiva, debido a la presencia de valores extremos hacia la derecha. Las variables Peso, Peso_carne, Peso_visceras y Peso_caparazon también presentan asimetría positiva, con una mayor concentración de observaciones en valores bajos y medios y una cola extendida hacia los valores altos. En general, se observa que las variables presentan diferentes formas de distribución y no todas siguen un comportamiento simétrico.
+
+```{r boxplots-predictores, fig.height=7}
+boxplot_h <- function(var, titulo) {
+  abalone %>%
+    ggplot(aes(x = .data[[var]], y = "")) +
+    geom_boxplot(fill = col_fill, color = col_line) +
+    stat_summary(fun = mean, geom = "point", shape = 20, size = 3,
+                 color = col_dark, orientation = "y") +
+    labs(title = titulo, x = titulo, y = "") +
+    theme_bw()
+}
+
+p1 <- boxplot_h("Largo", "Largo (mm)")
+p2 <- boxplot_h("Diametro", "Diámetro (mm)")
+p3 <- boxplot_h("Altura", "Altura (mm)")
+p4 <- boxplot_h("Peso", "Peso total (g)")
+p5 <- boxplot_h("Peso_carne", "Peso de la carne (g)")
+p6 <- boxplot_h("Peso_visceras", "Peso de las vísceras (g)")
+p7 <- boxplot_h("Peso_caparazon", "Peso del caparazón (g)")
+
+(p1 + p2 + p3) / (p4 + p5 + p6) / (p7 + plot_spacer() + plot_spacer())
+```
+
+**INTERPRETACIÓN**
+Los diagramas de caja muestran la distribución de las variables independientes y permiten identificar su dispersión y valores atípicos. Se observa que Largo y Diámetro presentan valores atípicos en la parte inferior, mientras que Altura presenta valores extremos hacia la parte superior. Por otro lado, Peso total, Peso de la carne, Peso de las vísceras y Peso del caparazón presentan numerosos valores atípicos en la parte superior, indicando la existencia de algunos abalones con pesos considerablemente elevados respecto al resto.
+
+## Variable categórica Sexo
+
+```{r tabla-sexo}
+tab_sexo <- abalone %>%
+  count(Sexo, name = "n") %>%
+  mutate(Porcentaje = round(n / sum(n) * 100, 2))
+tab_sexo %>% tabla("Frecuencia por sexo", d = 2)
+```
+
+```{r barras-sexo, fig.height=4}
+tab_sexo %>%
+  ggplot(aes(x = Sexo, y = n, fill = Sexo)) +
+  geom_col(color = col_line, show.legend = FALSE) +
+  geom_text(aes(label = paste0(n, " (", Porcentaje, "%)")), vjust = -0.4, size = 4) +
+  scale_fill_manual(values = col_sexo) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(title = "Distribución del sexo", x = "Sexo", y = "Frecuencia") +
+  theme_bw()
+```
+**Interpretación:**
+El gráfico muestra la distribución de los abalones según su sexo. Se observa que los machos presentan la mayor frecuencia, con 1.528 individuos (36.63 %), seguidos de los infantes con 1.336 (32.03 %) y las hembras con 1.307 (31.34 %).
+
+
+
+# Análisis exploratorio bivariado
+
+## Variables cuantitativas vs. Anillos
+
+```{r dispersion-predictores, fig.height=7}
+abalone %>%
+  pivot_longer(all_of(predictores), names_to = "variable", values_to = "valor") %>%
+  mutate(variable = factor(variable, levels = predictores)) %>%
+  ggplot(aes(x = valor, y = Anillos)) +
+  geom_point(aes(color = Sexo), alpha = 0.35, size = 0.8) +
+  geom_smooth(method = "lm", se = TRUE, color = col_dark, linewidth = 1) +
+  scale_color_manual(values = col_sexo) +
+  facet_wrap(~ variable, scales = "free_x", ncol = 4) +
+  labs(title = "Relación entre las características físicas y el número de anillos",
+       x = "", y = "Número de anillos") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+**INTERPRETACIÓN**
+La gráfica muestra una relación positiva entre el número de anillos y todas las características físicas analizadas. En general, los abulones con mayor largo, diámetro, altura y peso tienden a presentar un mayor número de anillos. El largo y el diámetro presentan tendencias similares, mientras que los diferentes tipos de peso también muestran una tendencia creciente, aunque con bastante dispersión de los datos. En la altura se observa una tendencia positiva muy marcada, pero también aparece un valor atípico que se aleja considerablemente del resto.
+
+
+## Sexo vs. Anillos
+
+```{r resumen-anillos-sexo}
+res_sexo <- abalone %>%
+  group_by(Sexo) %>%
+  summarise(resumen(Anillos))
+res_sexo %>% tabla("Anillos según sexo")
+```
+
+**Interpretacion:**
+En esta tabla se observa que las hembras presentan el mayor promedio de anillos (11,129), seguidas por los machos (10,705), mientras que los infantes tienen un promedio menor (7,897). La mediana es de 10 anillos para hembras y machos, y de 8 para los infantes. La variabilidad es similar entre los grupos, aunque los infantes presentan una desviación estándar menor. En los tres grupos hay asimetría positiva, es decir, algunos individuos presentan un número de anillos considerablemente mayor que la mayoría. También se identifican valores atípicos en los tres grupos, siendo 94 en machos, 92 en hembras y 49 en infantes.
+
+```{r boxplot-anillos-sexo}
+abalone %>%
+  ggplot(aes(x = Sexo, y = Anillos, fill = Sexo)) +
+  geom_boxplot(color = col_dark, show.legend = FALSE) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "black") +
+  scale_fill_manual(values = col_sexo) +
+  labs(title = "Número de anillos según sexo",
+       subtitle = "El punto negro indica la media",
+       x = "Sexo", y = "Número de anillos") +
+  theme_bw()
+```
+
+**INTERPRETACIÓN**
+El diagrama muestra que las hembras y los machos presentan un comportamiento similar en cuanto al número de anillos, con una media aproximada de 11 y una mediana de 10 anillos. En cambio, los ejemplares infantiles presentan valores inferiores, con una media cercana a 8 anillos. Además, se observa una dispersión similar entre hembras y machos, así como la presencia de valores atípicos en los tres grupos. En conclusión, los ejemplares infantiles tienden a presentar un menor número de anillos que los adultos, mientras que no se aprecian diferencias importantes entre hembras y machos.
+
+
+# Correlación lineal
+
+## Matriz de dispersión y correlaciones
+
+```{r ggpairs, fig.width=11, fig.height=10}
+abalone %>%
+  select(all_of(predictores), Anillos) %>%
+  ggpairs(
+    upper = list(continuous = wrap("cor", size = 3)),
+    lower = list(continuous = wrap("smooth", method = "lm", color = col_point,
+                                   alpha = 0.3, size = 0.3))
+  ) +
+  labs(title = "Matriz de dispersión y correlaciones") +
+  theme_bw(base_size = 8)
+```
+
+**Interpretación:** 
+La matriz de dispersión y correlaciones muestra que existe una relación positiva entre todas las variables analizadas, es decir, cuando aumentan las dimensiones y el peso del abulón, también tienden a aumentar sus demás características físicas. Se destacan las correlaciones más altas entre largo y diámetro (0,987), peso y peso de carne (0,970), y peso y peso de vísceras (0,966), lo que indica asociaciones muy fuertes. Por otro lado, el número de anillos presenta correlaciones positivas moderadas con las demás variables, siendo la más alta con el peso del caparazón (0,627).
+
+
+## Correlación de cada variable con Anillos (Pearson, Spearman y Kendall)
+
+Para cada variable: $H_0: \rho = 0$ (no hay correlación) vs. $H_1: \rho \neq 0$.
+
+```{r tabla-correlaciones}
+tabla_cor <- map_dfr(predictores, function(v) {
+  pe <- cor.test(abalone[[v]], abalone$Anillos, method = "pearson")
+  sp <- cor.test(abalone[[v]], abalone$Anillos, method = "spearman", exact = FALSE)
+  ke <- cor.test(abalone[[v]], abalone$Anillos, method = "kendall", exact = FALSE)
+  tibble(
+    Variable = v,
+    Pearson = unname(pe$estimate), IC95_inf = pe$conf.int[1], IC95_sup = pe$conf.int[2],
+    p_Pearson = pe$p.value,
+    Spearman = unname(sp$estimate), p_Spearman = sp$p.value,
+    Kendall = unname(ke$estimate), p_Kendall = ke$p.value
+  )
+}) %>% arrange(desc(Pearson))
+
+tabla_cor %>% tabla("Coeficientes de correlación con Anillos", d = 3)
+
+mejor_pred <- tabla_cor$Variable[1]
+cor_pred <- cor(abalone %>% select(all_of(predictores)))
+cor_min_pred <- min(cor_pred[upper.tri(cor_pred)])
+```
+
+**INTERPRETACIÓN**
+La tabla muestra que todas las variables presentan una correlación positiva y estadísticamente significativa con el número de anillos (p < 0,001). Según el coeficiente de Pearson, la relación más fuerte se presenta con el peso del caparazón (0,627), seguido del diámetro (0,574) y la altura (0,557). Por otro lado, el peso de la carne presenta la correlación más baja (0,421). Los coeficientes de Spearman y Kendall confirman esta tendencia, mostrando asociaciones positivas entre las variables y el número de anillos.
+
+
+# Pruebas paramétricas y no paramétricas: Anillos según Sexo
+
+## Comparación de dos grupos independientes: Hembras vs. Machos
+
+Se comparan solo los adultos, porque es la comparación interesante (la diferencia con los infantes es evidente en el boxplot).
+
+### Verificación de supuestos
+
+```{r supuestos-dos-grupos}
+adultos <- abalone %>% filter(Sexo != "Infante") %>% droplevels()
+
+# Normalidad en cada grupo
+norm_adultos <- adultos %>%
+  group_by(Sexo) %>%
+  summarise(
+    W_Shapiro = shapiro.test(Anillos)$statistic,
+    p_Shapiro = shapiro.test(Anillos)$p.value,
+    D_Lilliefors = lillie.test(Anillos)$statistic,
+    p_Lilliefors = lillie.test(Anillos)$p.value
+  )
+norm_adultos %>% tabla("Normalidad de Anillos en hembras y machos", d = 4)
+
+# Igualdad de varianzas: prueba F y Levene
+f_var <- var.test(Anillos ~ Sexo, data = adultos)
+f_var
+lev_adultos <- leveneTest(Anillos ~ Sexo, data = adultos, center = "median")
+lev_adultos
+var_iguales <- f_var$p.value >= 0.05
+```
+**Interpretación:** 
+La prueba F de Fisher presenta un valor p de 0,3393, superior al nivel de significancia de 0,05, por lo que no se rechaza la hipótesis nula de igualdad de varianzas entre hembras y machos. Este resultado se confirma mediante la prueba de Levene, cuyo valor p es 0,3953, también superior a 0,05. En conclusión, no se encuentran diferencias estadísticamente significativas entre las varianzas del número de anillos de hembras y machos, por lo que se puede asumir homogeneidad de varianzas entre ambos grupos.
+
+### Prueba t para muestras independientes
+
+$H_0: \mu_H = \mu_M$ vs. $H_1: \mu_H \neq \mu_M$.
+
+```{r prueba-t}
+t_res <- t.test(Anillos ~ Sexo, data = adultos, var.equal = var_iguales)
+t_res
+
+# Tamaño del efecto: d de Cohen
+d_res <- cohen.d(Anillos ~ Sexo, data = adultos)
+d_res
+```
+**Interpretación:** 
+La prueba t muestra diferencias estadísticamente significativas entre hembras y machos (p = 0,0002442). Las hembras presentan un promedio mayor de anillos (11,13) que los machos (10,71). Sin embargo, el tamaño del efecto es muy pequeño (d = 0,138), por lo que la diferencia tiene poca relevancia práctica.
+
+### Prueba de Mann-Whitney (Wilcoxon de rangos)
+
+$H_0$: las distribuciones de anillos de hembras y machos son iguales.
+
+```{r mann-whitney}
+w_res <- adultos %>% wilcox_test(Anillos ~ Sexo)
+w_res
+w_eff <- adultos %>% wilcox_effsize(Anillos ~ Sexo)
+w_eff
+```
+
+**INTERPRETACIÓN**
+El tamaño del efecto de 0,0717 indica una diferencia pequeña entre hembras y machos en el número de anillos. Esto significa que, aunque existen diferencias entre ambos grupos, su magnitud es reducida y tiene poca relevancia práctica.
+
+
+
+## ANOVA de un factor: comparación de los tres grupos
+
+$H_0: \mu_H = \mu_M = \mu_I$ vs. $H_1$: al menos una media es diferente.
+
+```{r anova}
+anova_sexo <- aov(Anillos ~ Sexo, data = abalone)
+summary(anova_sexo)
+s_anova <- summary(anova_sexo)[[1]]
+```
+
+**Interpretación:** El ANOVA muestra diferencias estadísticamente significativas en el número de anillos según el sexo (F = 495,2; p < 0,001). Esto indica que al menos uno de los tres grupos (hembras, machos e infantes) presenta un promedio de anillos diferente a los demás. Por lo tanto, se rechaza la hipótesis nula de igualdad de medias.
+
+**Verificación de supuestos del ANOVA**
+
+```{r supuestos-anova}
+# Normalidad de los residuos
+sw_anova <- shapiro.test(residuals(anova_sexo))
+sw_anova
+
+# Homogeneidad de varianzas
+bart <- bartlett.test(Anillos ~ Sexo, data = abalone)
+bart
+lev <- leveneTest(Anillos ~ Sexo, data = abalone, center = "median")
+lev
+```
+
+**Interpretación:**
+La prueba de Shapiro-Wilk (p < 0,001) indica que los residuos no siguen una distribución normal. Asimismo, las pruebas de Bartlett (p < 0,001) y Levene (p < 0,001) muestran que las varianzas de los grupos no son homogéneas. Por lo que no se cumplen los supuestos de normalidad ni de igualdad de varianzas del ANOVA.
+
+**Comparaciones múltiples (Tukey HSD)**
+
+```{r tukey}
+tukey <- TukeyHSD(anova_sexo)
+tukey
+
+tk <- as.data.frame(tukey$Sexo) %>%
+  rownames_to_column("Comparacion") %>%
+  rename(p_ajustado = `p adj`)
+
+tk %>%
+  ggplot(aes(x = diff, y = Comparacion)) +
+  geom_errorbar(aes(xmin = lwr, xmax = upr), width = 0.2,
+                color = col_line, linewidth = 1, orientation = "y") +
+  geom_point(color = col_dark, size = 3) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(title = "Intervalos de confianza de Tukey (95 %)",
+       x = "Diferencia de medias de anillos", y = "") +
+  theme_bw()
+```
+
+**INTERPRETACIÓN**
+La prueba de Tukey muestra diferencias estadísticamente significativas entre los tres grupos, ya que ninguno de los intervalos de confianza incluye el cero. Los infantes presentan un menor promedio de anillos que hembras y machos, mientras que las diferencias entre hembras y machos son más pequeñas.
+
+
+## Kruskal-Wallis y comparaciones post hoc
+
+$H_0$: las distribuciones de anillos son iguales en los tres grupos.
+
+```{r kruskal}
+kw <- kruskal.test(Anillos ~ Sexo, data = abalone)
+kw
+
+# Comparaciones por pares con ajuste de Bonferroni
+pw <- pairwise.wilcox.test(abalone$Anillos, abalone$Sexo,
+                           p.adjust.method = "bonferroni", exact = FALSE)
+pw
+```
+
+**INTERPRETACIÓN**
+La prueba de Kruskal-Wallis muestra diferencias estadísticamente significativas en el número de anillos entre los grupos (p < 0,001). Las comparaciones por pares de Wilcoxon indican que existen diferencias significativas entre todas las categorías: hembras, machos e infantes. En conclusión podemos ver que el número de anillos presenta diferencias entre los tres grupos, confirmando que la categoría de sexo está relacionada con su distribución.
+
+
+# Tabla de contingencia: Sexo vs. grupo de edad
+
+Se categoriza la edad en tres grupos según los anillos: **Joven** (≤ 8), **Adulto** (9–11) y **Mayor** (≥ 12). Como los dos criterios se miden sobre una sola muestra, se aplica la **prueba de independencia**.
+
+```{r contingencia}
+abalone <- abalone %>%
+  mutate(Grupo_edad = cut(Anillos, breaks = c(-Inf, 8, 11, Inf),
+                          labels = c("Joven (<=8)", "Adulto (9-11)", "Mayor (>=12)")))
+
+tab_cont <- xtabs(~ Sexo + Grupo_edad, data = abalone)
+tab_cont
+rowSums(tab_cont)
+colSums(tab_cont)
+
+# Porcentaje de cada grupo de edad dentro de cada sexo
+abalone %>%
+  count(Sexo, Grupo_edad) %>%
+  group_by(Sexo) %>%
+  mutate(Porcentaje = round(n / sum(n) * 100, 1)) %>%
+  select(-n) %>%
+  pivot_wider(names_from = Grupo_edad, values_from = Porcentaje) %>%
+  tabla("Porcentaje de cada grupo de edad dentro de cada sexo", d = 1)
+```
+**Interpretación:**
+Se observa que la mayoría de las hembras (52,5 %) y machos (52,2 %) se encuentran en la categoría adulta, mientras que en los infantes predomina la categoría joven (68,6 %). Además, los porcentajes de ejemplares mayores son superiores en hembras (33,3 %) que en machos (28,3 %) e infantes (7 %).
+
+```{r grafico-contingencia, fig.height=4.5}
+abalone %>%
+  ggplot(aes(x = Sexo, fill = Grupo_edad)) +
+  geom_bar(position = "dodge", color = "white") +
+  scale_fill_manual(values = c(col_fill, col_line, col_dark)) +
+  labs(title = "Grupos de edad según sexo",
+       x = "Sexo", y = "Frecuencia", fill = "Grupo de edad") +
+  theme_bw()
+```
+**Interpretación:**
+El gráfico muestra que la mayoría de las hembras (52,5 %) y los machos (52,2 %) pertenecen al grupo adulto (9-11 anillos), mientras que los infantes se concentran principalmente en el grupo joven (68,6 %). Además, las hembras presentan una mayor frecuencia de ejemplares mayores (≥12 anillos) que los machos y los infantes.
+
+**Prueba de independencia Chi-cuadrado.** $H_0$: Sexo y grupo de edad son independientes vs. $H_1$: no son independientes.
+
+```{r chi-manual}
+# Cálculo paso a paso
+O <- tab_cont
+n_tot <- sum(O)
+E <- outer(rowSums(O), colSums(O)) / n_tot   # frecuencias esperadas R_i * C_j / n
+round(E, 1)
+
+chi2 <- sum((O - E)^2 / E)
+gl_chi <- (nrow(O) - 1) * (ncol(O) - 1)
+chi_crit <- qchisq(0.95, gl_chi)
+p_chi <- pchisq(chi2, gl_chi, lower.tail = FALSE)
+
+tibble(Chi2 = chi2, gl = gl_chi, Valor_critico = chi_crit, p_valor = p_chi) %>%
+  tabla("Prueba Chi-cuadrado calculada paso a paso", d = 4)
+```
+
+```{r chi-test}
+# Verificación con chisq.test
+chi <- chisq.test(tab_cont)
+chi
+```
+
+**INTERPRETACIÓN**
+La prueba Chi-cuadrado de Pearson muestra una asociación estadísticamente significativa entre el sexo y el grupo de edad (X² = 1111,7; p < 0,001). Por lo tanto, se rechaza la hipótesis nula de independencia, indicando que la distribución de los grupos de edad varía según el sexo de los abulones.
+
+
+# Regresión lineal simple
+
+Se usa como predictor la variable con mayor correlación con Anillos: **`r mejor_pred`**.
+
+$$\text{Anillos}_i = \beta_0 + \beta_1\,\text{`r mejor_pred`}_i + \varepsilon_i,\qquad \varepsilon_i \sim N(0, \sigma^2)$$
+
+## Ajuste del modelo
+
+```{r rls-ajuste}
+f_rls <- reformulate(mejor_pred, response = "Anillos")
+rls <- eval(bquote(lm(.(f_rls), data = abalone)))
+summary(rls)
+
+s_rls  <- summary(rls)
+co_rls <- coef(s_rls)
+ic_rls <- confint.default(rls)
+ic_rls
+anova(rls)
+
+# Intervalo de confianza para sigma^2
+gl_rls <- df.residual(rls)
+s2_rls <- s_rls$sigma^2
+ic_s2  <- c(gl_rls * s2_rls / qchisq(0.975, gl_rls),
+            gl_rls * s2_rls / qchisq(0.025, gl_rls))
+ic_s2
+```
+
+**Interpretación:**
+El modelo de regresión lineal muestra una relación positiva y estadísticamente significativa entre el peso del caparazón y el número de anillos (p < 0,001). El coeficiente de determinación (R² = 0,3936) indica que el peso del caparazón explica aproximadamente el 39,36 % de la variabilidad del número de anillos. En conclusión, a mayor peso del caparazón, tiende a aumentar el número de anillos, aunque el modelo no explica toda su variación.
+
+```{r rls-grafico}
+abalone %>%
+  ggplot(aes(x = .data[[mejor_pred]], y = Anillos)) +
+  geom_point(color = col_point, alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE, color = col_dark, linewidth = 1.2) +
+  labs(title = paste("Regresión lineal simple: Anillos ~", mejor_pred),
+       x = mejor_pred, y = "Número de anillos") +
+  theme_bw()
+```
+
+**INTERPRETACIÓN**
+El gráfico muestra una relación positiva entre el peso del caparazón y el número de anillos. Se observa que, a medida que aumenta el peso del caparazón, también tiende a aumentar el número de anillos. Sin embargo, los datos presentan cierta dispersión, lo que indica que el peso no explica completamente las variaciones en la cantidad de anillos. Esto confirma la relación positiva encontrada en el modelo de regresión lineal.
+
+
+
+## Análisis de residuales y validación de supuestos
+
+```{r funciones-diagnostico}
+graficos_residuos <- function(modelo, titulo) {
+  df <- tibble(ajustados = fitted(modelo), residuos = residuals(modelo),
+               orden = seq_along(residuos))
+  g1 <- ggplot(df, aes(ajustados, residuos)) +
+    geom_point(alpha = 0.3, color = col_point) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(title = "Residuos vs. ajustados", x = "Valores ajustados", y = "Residuos") +
+    theme_bw()
+  g2 <- ggplot(df, aes(residuos)) +
+    geom_histogram(aes(y = after_stat(density)), bins = 40,
+                   fill = col_fill, color = col_line) +
+    geom_density(color = col_dark, linewidth = 1) +
+    labs(title = "Histograma de residuos", x = "Residuos", y = "Densidad") +
+    theme_bw()
+  g3 <- ggplot(df, aes(orden, residuos)) +
+    geom_point(alpha = 0.3, color = col_point) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(title = "Residuos vs. orden", x = "Orden de la observación", y = "Residuos") +
+    theme_bw()
+  print((g1 + g2) / g3 + plot_annotation(title = titulo))
+}
+
+pruebas_supuestos <- function(modelo) {
+  e   <- residuals(modelo)
+  sw  <- shapiro.test(e)
+  tm  <- t.test(e, mu = 0)
+  bp  <- bptest(modelo)
+  ncv <- ncvTest(modelo)
+  dw  <- durbinWatsonTest(modelo)
+  tibble(
+    Supuesto = c("Normalidad", "Media cero", "Varianza constante",
+                 "Varianza constante", "Independencia"),
+    Prueba = c("Shapiro-Wilk", "t de una muestra (mu = 0)", "Breusch-Pagan",
+               "ncvTest (car)", "Durbin-Watson"),
+    Estadistico = c(sw$statistic, tm$statistic, bp$statistic, ncv$ChiSquare, dw$dw),
+    p_valor = c(sw$p.value, tm$p.value, bp$p.value, ncv$p, dw$p),
+    Conclusion = ifelse(p_valor < 0.05, "No se cumple (se rechaza H0)",
+                        "Se cumple (no se rechaza H0)")
+  )
+}
+```
+
+```{r rls-residuales, fig.height=6}
+graficos_residuos(rls, paste("Diagnóstico RLS: Anillos ~", mejor_pred))
+```
+**Interpretación:**
+Los gráficos evidencian que los residuos presentan una distribución asimétrica, alejada de la normalidad, con algunos valores extremos. Asimismo, se observa una dispersión irregular en los residuos respecto a los valores ajustados y a lo largo del orden de las observaciones, lo que sugiere posibles problemas de heterocedasticidad. Estos comportamientos indican que el modelo presenta limitaciones en el cumplimiento de los supuestos de regresión lineal.
+
+```{r rls-qq-acf, fig.height=4.5}
+par(mfrow = c(1, 2))
+invisible(qqPlot(residuals(rls), main = "QQ de los residuos (RLS)",
+                 xlab = "Cuantiles teóricos", ylab = "Residuos", id = FALSE))
+acf(residuals(rls), main = "Autocorrelación de los residuos (RLS)")
+par(mfrow = c(1, 1))
+```
+**Interpretación:** 
+El gráfico QQ muestra que los residuos se alejan de la línea de referencia, especialmente en los valores extremos, lo que evidencia que no siguen una distribución normal. Por otra parte, el gráfico de autocorrelación presenta valores positivos que superan los límites de confianza en varios rezagos, indicando una fuerte dependencia entre los residuos. Esto sugiere que no se cumple el supuesto de independencia de los errores y que el modelo presenta limitaciones en su ajuste estadístico.
+
+```{r rls-supuestos}
+sup_rls <- pruebas_supuestos(rls)
+sup_rls %>% tabla("Pruebas de supuestos de la RLS", d = 4)
+```
+
+**INTERPRETACIÓN**
+Las pruebas indican que el modelo cumple con el supuesto de media cero, pero no cumple con los de normalidad (p < 0,001), varianza constante (p < 0,001) e independencia (p < 0,001). Esto evidencia que los residuos presentan desviaciones importantes respecto a los supuestos de la regresión lineal, por lo que el modelo debe interpretarse con precaución.
+
+## Transformación para mejorar el ajuste
+
+Los anillos son un conteo positivo cuya variabilidad crece con la media, y la relación con el peso es curva (crecimiento que se desacelera). Entre las transformaciones vistas, el modelo **log-log** corrige ambos problemas a la vez:
+
+$$\log(\text{Anillos}_i) = \beta_0 + \beta_1 \log(\text{`r mejor_pred`}_i) + \varepsilon_i$$
+
+```{r rls-log}
+f_rls_log <- as.formula(paste0("log(Anillos) ~ log(", mejor_pred, ")"))
+rls_log <- eval(bquote(lm(.(f_rls_log), data = abalone)))
+summary(rls_log)
+s_rls_log  <- summary(rls_log)
+co_rls_log <- coef(s_rls_log)
+confint.default(rls_log)
+```
+**Interpretación:** 
+El modelo de regresión logarítmica muestra una relación positiva y estadísticamente significativa entre el peso del caparazón y el número de anillos (p < 0,001). El coeficiente de determinación (R² = 0,5468) indica que el modelo explica el 54,68 % de la variabilidad del número de anillos. Además, el coeficiente de 0,291 indica que un aumento del 1 % en el peso del caparazón se asocia aproximadamente con un aumento del 0,291 % en el número de anillos. Esto representa una mejora en la capacidad explicativa respecto al modelo lineal simple.
+
+```{r rls-log-grafico, fig.height=4}
+abalone %>%
+  ggplot(aes(x = log(.data[[mejor_pred]]), y = log(Anillos))) +
+  geom_point(color = col_point, alpha = 0.4) +
+  geom_smooth(method = "lm", color = col_dark) +
+  labs(title = "Modelo transformado (log-log)",
+       x = paste0("log(", mejor_pred, ")"), y = "log(Anillos)") +
+  theme_bw()
+```
+
+**Interpretación:** 
+El gráfico muestra una relación positiva entre el logaritmo del peso del caparazón y el logaritmo del número de anillos. Se observa que, a medida que aumenta el peso del caparazón, también tiende a aumentar el número de anillos. Los datos presentan una tendencia aproximadamente lineal, aunque existe cierta dispersión alrededor de la recta de regresión.
+
+```{r rls-log-residuales, fig.height=6}
+graficos_residuos(rls_log, "Diagnóstico RLS transformada (log-log)")
+```
+**Interpretación:**
+Los gráficos muestran una mejora en el comportamiento de los residuos respecto al modelo original; sin embargo, todavía se observa cierta asimetría en su distribución y una dispersión irregular frente a los valores ajustados. Además, los residuos presentan patrones a lo largo del orden de las observaciones, lo que sugiere que persisten problemas de heterocedasticidad y posible dependencia. La transformación logarítmica mejora el ajuste, pero no logra corregir completamente las limitaciones del modelo.
+
+```{r rls-log-qq-acf, fig.height=4.5}
+par(mfrow = c(1, 2))
+invisible(qqPlot(residuals(rls_log), main = "QQ de los residuos (log-log)",
+                 xlab = "Cuantiles teóricos", ylab = "Residuos", id = FALSE))
+acf(residuals(rls_log), main = "Autocorrelación (log-log)")
+par(mfrow = c(1, 1))
+```
+**Interpretación:**
+El gráfico QQ muestra que los residuos se aproximan a la línea de referencia en la parte central, pero presentan desviaciones en los extremos, indicando que la normalidad no se cumple completamente. Por otra parte, el gráfico de autocorrelación evidencia correlaciones positivas significativas en los distintos rezagos, lo que indica dependencia entre los residuos. A pesar de la transformación logarítmica, persisten problemas de normalidad e independencia en el modelo.
+
+```{r rls-log-supuestos}
+sup_rls_log <- pruebas_supuestos(rls_log)
+sup_rls_log %>% tabla("Pruebas de supuestos de la RLS transformada", d = 4)
+
+tibble(
+  Modelo = c("Original", "Log-log"),
+  R2 = c(s_rls$r.squared, s_rls_log$r.squared),
+  W_Shapiro = c(sup_rls$Estadistico[1], sup_rls_log$Estadistico[1]),
+  Breusch_Pagan = c(sup_rls$Estadistico[3], sup_rls_log$Estadistico[3])
+) %>% tabla("Comparación de la RLS antes y después de la transformación", d = 4)
+```
+
+**INTERPRETACIÓN**
+La comparación muestra que el modelo log-log presenta una mejora respecto al original, aumentando el R² de 0,3936 a 0,5468. Además, mejora la normalidad de los residuos (W = 0,9592) y disminuye considerablemente la heterocedasticidad (Breusch-Pagan = 5,1846). Por tanto, la transformación logarítmica permite obtener un modelo con mejor ajuste y un cumplimiento más favorable de los supuestos estadísticos.
+
+
+## Estimación de la respuesta media e intervalo de predicción
+
+Se estima el número de anillos para un abulón con el valor mediano de `r mejor_pred`.
+
+```{r rls-prediccion}
+x0 <- median(abalone[[mejor_pred]])
+nuevo <- setNames(data.frame(x0), mejor_pred)
+
+ic_media <- predict(rls, nuevo, interval = "confidence")
+ip_nuevo <- predict(rls, nuevo, interval = "prediction")
+ic_media_log <- exp(predict(rls_log, nuevo, interval = "confidence"))
+ip_nuevo_log <- exp(predict(rls_log, nuevo, interval = "prediction"))
+
+tibble(
+  Modelo = c("Original", "Original", "Log-log", "Log-log"),
+  Intervalo = rep(c("IC 95 % para E(Y|x0)", "IP 95 % para un nuevo Y0"), 2),
+  Estimacion = c(ic_media[1], ip_nuevo[1], ic_media_log[1], ip_nuevo_log[1]),
+  Inferior = c(ic_media[2], ip_nuevo[2], ic_media_log[2], ip_nuevo_log[2]),
+  Superior = c(ic_media[3], ip_nuevo[3], ic_media_log[3], ip_nuevo_log[3])
+) %>% tabla(paste0("Predicciones para ", mejor_pred, " = ", fmt(x0, 2)), d = 2)
+```
+
+**INTERPRETACIÓN**
+Para un peso del caparazón de 46,80, el modelo original estima 9,87 anillos, mientras que el modelo log-log estima 10,07. Ambos modelos presentan predicciones similares; sin embargo, los intervalos de confianza son más estrechos que los intervalos de predicción, ya que estos últimos consideran la variabilidad de una nueva observación.
+
+# Regresión lineal múltiple
+
+## Variables dummy para Sexo
+
+Sexo entra al modelo como **dos variables dummy** (Macho e Infante), y *Hembra* es la categoría de referencia:
+
+```{r dummies}
+contrasts(abalone$Sexo)
+head(model.matrix(~ Sexo, data = abalone))
+```
+
+## Modelo completo
+
+$$\text{Anillos}_i = \beta_0 + \beta_1 D_{Macho,i} + \beta_2 D_{Infante,i} + \beta_3 \text{Largo}_i + \dots + \beta_9 \text{Peso_caparazon}_i + \varepsilon_i$$
+
+```{r rlm-completo}
+f_completo <- reformulate(c("Sexo", predictores), response = "Anillos")
+rlm_completo <- eval(bquote(lm(.(f_completo), data = abalone)))
+summary(rlm_completo)
+s_rlm_c <- summary(rlm_completo)
+confint.default(rlm_completo)
+anova(rlm_completo)
+```
+
+**INTERPRETACIÓN**
+El modelo de regresión lineal múltiple es estadísticamente significativo (p < 0,001) y explica el 54,02 % de la variabilidad del número de anillos (R² = 0,5402). Las variables sexo, diámetro, altura, peso, peso de carne, peso de vísceras y peso del caparazón presentan asociaciones significativas con el número de anillos, mientras que el largo y la categoría macho no muestran efectos significativos en los coeficientes del modelo. Se destaca que los infantes presentan un menor número de anillos respecto a las hembras y que el peso de carne tiene una relación negativa con esta variable. En general, el modelo permite explicar mejor el número de anillos al considerar simultáneamente las características físicas y el sexo de los abulones.
+
+
+## Análisis de multicolinealidad
+
+```{r multicolinealidad}
+# VIF (car)
+tabla_vif <- function(modelo) {
+  v <- vif(modelo)
+  if (is.matrix(v)) {
+    # Con factores, car::vif devuelve el GVIF; GVIF^(1/(2gl)) al cuadrado es comparable con el VIF
+    tibble(Variable = rownames(v), VIF = v[, "GVIF^(1/(2*Df))"]^2)
+  } else {
+    tibble(Variable = names(v), VIF = unname(v))
+  }
+}
+
+vif_completo <- tabla_vif(rlm_completo) %>%
+  mutate(Problema = ifelse(VIF > 10, "Multicolinealidad severa",
+                    ifelse(VIF > 5, "Moderada", "Aceptable")))
+vif_completo %>% tabla("VIF del modelo completo", d = 2)
+
+# Número de condición
+kappa_completo <- kappa(rlm_completo, exact = TRUE)
+kappa_completo
+
+# Diagnóstico con mctest (solo predictores numéricos)
+rlm_num <- lm(reformulate(predictores, "Anillos"), data = abalone)
+mctest(rlm_num, type = "b")
+```
+
+**Interpretación:** 
+Los resultados evidencian problemas importantes de multicolinealidad entre las variables explicativas, especialmente en peso (VIF = 116,58), diámetro (VIF = 41,75) y largo (VIF = 40,68). Esto indica una alta correlación entre algunas características físicas de los abulones, lo que puede afectar la estabilidad y precisión de los coeficientes del modelo. Además, el largo presenta un coeficiente no significativo posiblemente debido a esta multicolinealidad. Por lo tanto, es necesario considerar la selección o reducción de variables para mejorar el modelo.
+
+```{r vif-iterativo}
+# Se elimina de a una la variable con mayor VIF hasta que todas tengan VIF <= 10
+vars_vif <- c("Sexo", predictores)
+eliminadas_vif <- c()
+repeat {
+  m_tmp <- lm(reformulate(vars_vif, "Anillos"), data = abalone)
+  tv <- tabla_vif(m_tmp)
+  if (max(tv$VIF) <= 10) break
+  peor <- tv$Variable[which.max(tv$VIF)]
+  eliminadas_vif <- c(eliminadas_vif, peor)
+  vars_vif <- setdiff(vars_vif, peor)
+}
+eliminadas_vif
+vars_vif
+
+f_vif <- reformulate(vars_vif, "Anillos")
+rlm_vif <- eval(bquote(lm(.(f_vif), data = abalone)))
+tabla_vif(rlm_vif) %>% tabla("VIF del modelo depurado", d = 2)
+kappa(rlm_vif, exact = TRUE)
+summary(rlm_vif)
+
+# Prueba F para modelos anidados: ¿las variables eliminadas aportan algo?
+anova(rlm_vif, rlm_completo)
+anidado_vif <- anova(rlm_vif, rlm_completo)
+```
+
+**INTERPRETACIÓN**
+Los resultados muestran una reducción de la multicolinealidad en el modelo depurado. Sexo y Altura presentan valores VIF bajos, mientras que Largo, Peso_carne y Peso_caparazon tienen valores moderadamente elevados. Sin embargo, todos los VIF son inferiores a 10, por lo que no se evidencia multicolinealidad severa.
+
+
+## Selección de variables
+
+### Método de todas las regresiones posibles
+
+```{r todas-regresiones}
+todas_obj <- ols_step_all_possible(rlm_vif)
+todas <- if (is.data.frame(todas_obj)) todas_obj else todas_obj$result
+todas <- as_tibble(todas) %>%
+  select(any_of(c("n", "predictors", "rsquare", "adjr", "cp", "aic", "sbc")))
+
+nrow(todas)  # número de modelos evaluados
+
+# Mejor modelo para cada número de variables (según R2 ajustado)
+mejores_k <- todas %>% group_by(n) %>% slice_max(adjr, n = 1) %>% ungroup()
+mejores_k %>% tabla("Mejor modelo para cada número de variables", d = 3)
+```
+
+**Interpretacion:**
+La tabla muestra que, al aumentar el número de variables, mejora la capacidad explicativa del modelo: el \\(R^2\\) ajustado aumenta de 0.393 a 0.518. El mejor modelo de cinco variables incluye Sexo, Largo, Altura, Peso_carne y Peso_caparazon, y presenta el menor valor de Cp (7.00) entre los modelos evaluados. Esto indica que estas variables ofrecen el mejor ajuste dentro de las alternativas comparadas.
+
+```{r grafico-todas, fig.height=6}
+plot(todas_obj)
+```
+
+**Interpretacion:**
+Los gráficos muestran que, a medida que aumenta el número de variables explicativas, mejora el ajuste del modelo, reflejado en el incremento del \\(R^2\\) y del \\(R^2\\) ajustado. Asimismo, los criterios Cp, AIC, SBIC y SBC disminuyen, alcanzando sus valores más bajos en el modelo de cinco variables. Por lo tanto, los resultados respaldan la selección del modelo que incluye Sexo, Largo, Altura, Peso_carne y Peso_caparazon, ya que presenta el mejor ajuste entre los modelos evaluados.
+
+### Selección secuencial (stepAIC)
+
+```{r stepwise}
+rlm_nulo <- lm(Anillos ~ 1, data = abalone)
+n_obs <- nrow(abalone)
+
+sel_forward  <- MASS::stepAIC(rlm_nulo, scope = list(lower = ~ 1, upper = formula(rlm_vif)),
+                              direction = "forward", trace = FALSE)
+sel_backward <- MASS::stepAIC(rlm_vif, direction = "backward", trace = FALSE)
+sel_both     <- MASS::stepAIC(rlm_vif, direction = "both", trace = FALSE)
+sel_bic      <- MASS::stepAIC(rlm_vif, direction = "both", k = log(n_obs), trace = FALSE)
+
+modelos_sel <- list(sel_forward, sel_backward, sel_both, sel_bic)
+tibble(
+  Metodo = c("Forward (AIC)", "Backward (AIC)", "Ambas direcciones (AIC)",
+             "Ambas direcciones (BIC)"),
+  Variables = map_chr(modelos_sel, ~ paste(attr(terms(.x), "term.labels"), collapse = " + ")),
+  R2_aj = map_dbl(modelos_sel, ~ summary(.x)$adj.r.squared)
+) %>% tabla("Resultados de la selección secuencial", d = 4)
+
+modelo_sel <- sel_both
+summary(modelo_sel)
+vars_sel <- attr(terms(modelo_sel), "term.labels")
+```
+
+**INTERPRETACIÓN**
+Los resultados de la selección secuencial muestran que los cuatro métodos (Forward, Backward, ambas direcciones con AIC y BIC) coinciden en elegir las mismas cinco variables: Sexo, Largo, Altura, Peso_carne y Peso_caparazon, con un \\(R^2\\) ajustado de 0.5179. Al ajustar la regresión múltiple con estas variables, se obtiene un modelo estadísticamente significativo (p < 0.001), que explica el 51.85 % de la variabilidad de los Anillos. Individualmente, Largo, Altura, Peso_carne, Peso_caparazon y SexoInfante son significativos, mientras que SexoMacho no presenta un efecto significativo. Estos resultados respaldan la elección del modelo de cinco variables.
+
+## Diagnóstico y transformación del modelo seleccionado
+
+```{r rlm-sel-diagnostico, fig.height=7}
+par(mfrow = c(2, 2))
+plot(modelo_sel)
+par(mfrow = c(1, 1))
+sup_sel <- pruebas_supuestos(modelo_sel)
+sup_sel %>% tabla("Supuestos de la RLM seleccionada", d = 4)
+```
+
+Los gráficos y las pruebas indican que el modelo incumple varios supuestos: normalidad, varianza constante e independencia de los residuos, mientras que el supuesto de media cero sí se cumple. Además, se observan valores atípicos y posibles observaciones influyentes. Por tanto, aunque el modelo es estadísticamente significativo, sus resultados deben interpretarse con precaución.
+
+Por las mismas razones que en la RLS, se ajusta el modelo con $\log(\text{Anillos})$ como respuesta:
+
+```{r rlm-log, fig.height=7}
+rlm_log <- update(modelo_sel, log(Anillos) ~ .)
+summary(rlm_log)
+
+par(mfrow = c(2, 2))
+plot(rlm_log)
+par(mfrow = c(1, 1))
+
+sup_log <- pruebas_supuestos(rlm_log)
+sup_log %>% tabla("Supuestos de la RLM con log(Anillos)", d = 4)
+```
+El modelo logarítmico es estadísticamente significativo (p < 0,001) y explica el 58,58 % de la variabilidad de los Anillos, mejorando el ajuste del modelo anterior. Las variables SexoInfante, Largo, Altura, Peso_carne y Peso_caparazon son significativas, mientras que SexoMacho no lo es. En los gráficos de diagnóstico se observa una mejora en el comportamiento de los residuos, aunque persisten desviaciones de la normalidad, variaciones en la dispersión y observaciones atípicas e influyentes, especialmente la 2050. Por tanto, el modelo presenta un mejor ajuste, pero aún tiene algunas limitaciones en sus supuestos.
+
+```{r rlm-log-acf, fig.height=4}
+acf(residuals(rlm_log), main = "Autocorrelación de los residuos (RLM con log)")
+```
+
+**Interpretacion:**
+El gráfico de autocorrelación de los residuos del modelo de regresión lineal múltiple (RLM) con transformación logarítmica muestra que las autocorrelaciones son positivas y significativas en varios rezagos, ya que superan las bandas de confianza. Esto indica que los residuos presentan dependencia entre sí, por lo que no se cumple el supuesto de independencia de los errores. En consecuencia, el modelo podría no estar capturando completamente la estructura de los datos.
+
+```{r modelo-final}
+
+modelo_final <- rlm_log
+es_log_final <- grepl("^log\\(", deparse(formula(modelo_final)[[2]]))
+```
+
+**Interpretacion:**
+El modelo de regresión lineal múltiple indica que el largo, la altura y el peso del caparazón presentan una relación positiva con el logaritmo del número de anillos, mientras que el peso de la carne y el sexo infantil muestran una relación negativa. El sexo masculino presenta una relación positiva muy pequeña. Estos resultados sugieren que las características físicas del abalón pueden estar relacionadas con su edad estimada; sin embargo, es necesario revisar la significancia estadística de los coeficientes para determinar cuáles variables tienen una relación significativa.
+
+## Identificación de atípicos y observaciones influyentes
+
+```{r atipicos}
+n_f <- nobs(modelo_final)
+
+# Residuos studentizados: |r| > 3 indica atípico
+r_stud <- rstudent(modelo_final)
+sum(abs(r_stud) > 3)
+
+# Prueba de atípicos con corrección de Bonferroni
+outlierTest(modelo_final)
+
+# Distancia de Cook
+cook <- cooks.distance(modelo_final)
+sum(cook > 4 / n_f)
+
+diag_inf <- tibble(id = abalone$id, r_stud = r_stud, cook = cook)
+
+diag_inf %>%
+  arrange(desc(cook)) %>%
+  head(10) %>%
+  left_join(abalone %>% select(id, Sexo, all_of(predictores), Anillos), by = "id") %>%
+  tabla("Observaciones con mayor distancia de Cook", d = 3)
+```
+
+**Interpretacion:**
+El análisis de residuos identifica dos observaciones con valores atípicos significativos: las observaciones 2050 y 237, cuyos valores p ajustados por Bonferroni son inferiores a 0.05. Además, la observación 2052 presenta la mayor distancia de Cook (10.890), indicando una influencia considerable sobre el modelo. Esto sugiere que existen observaciones que pueden afectar significativamente el ajuste de la regresión, por lo que sería conveniente revisarlas antes de realizar conclusiones definitivas.
+
+```{r grafico-influencia, fig.height=7}
+influenceIndexPlot(modelo_final, vars = c("Cook", "Studentized", "Bonf"),
+                   main = "Diagnóstico de influencia del modelo final")
+```
+
+El gráfico de diagnóstico muestra que la mayoría de las observaciones presentan una influencia baja sobre el modelo. Sin embargo, se destacan las observaciones 2050 y 237, que tienen residuos studentizados extremos y valores de distancia de Cook elevados, especialmente la observación 2050.
+
+```{r sin-influyentes}
+ids_influyentes <- diag_inf$id[diag_inf$cook > 4 / n_f]
+modelo_sin_inf <- update(modelo_final, data = abalone %>% filter(!id %in% ids_influyentes))
+
+tibble(
+  Termino = names(coef(modelo_final)),
+  Con_todos = coef(modelo_final),
+  Sin_influyentes = coef(modelo_sin_inf)[names(coef(modelo_final))]
+) %>%
+  mutate(Cambio_pct = (Sin_influyentes - Con_todos) / abs(Con_todos) * 100) %>%
+  tabla("Coeficientes con y sin observaciones influyentes", d = 4)
+```
+
+**INTERPRETACIÓN**
+Al comparar los coeficientes del modelo con todas las observaciones y sin las influyentes, se evidencia que algunas variables presentan cambios importantes. Destaca Altura, cuyo coeficiente aumenta un 61.41%, mientras que Largo disminuye un 21.52%. También se observa un cambio del 25.91% en SexoMacho. En contraste, SexoInfante y Peso_carne mantienen coeficientes prácticamente iguales.
+
+## Modelo final: inferencia e interpretación
+
+```{r final-resumen}
+summary(modelo_final)
+s_final <- summary(modelo_final)
+anova(modelo_final)
+
+coef_final <- tibble(
+  Termino = names(coef(modelo_final)),
+  Estimacion = coef(modelo_final),
+  Error_est = coef(s_final)[, 2],
+  t = coef(s_final)[, 3],
+  p_valor = coef(s_final)[, 4],
+  IC95_inf = confint.default(modelo_final)[, 1],
+  IC95_sup = confint.default(modelo_final)[, 2]
+)
+if (es_log_final) {
+  coef_final <- coef_final %>% mutate(Efecto_pct = (exp(Estimacion) - 1) * 100)
+}
+coef_final %>% tabla("Coeficientes del modelo final", d = 4)
+
+# Texto para interpretar las dummies de Sexo (funciona con o sin log)
+efecto_txt <- function(termino) {
+  b <- coef_final$Estimacion[coef_final$Termino == termino]
+  if (es_log_final) paste0(fmt((exp(b) - 1) * 100, 1), " % de anillos")
+  else paste0(fmt(b, 2), " anillos")
+}
+p_term <- function(termino) fp(coef_final$p_valor[coef_final$Termino == termino])
+
+tabla_vif(modelo_final) %>% tabla("VIF del modelo final", d = 2)
+```
+
+**INTERPRETACIÓN**
+El modelo de regresión lineal múltiple es estadísticamente significativo (p < 0.001) y explica aproximadamente el 58.58% de la variabilidad del logaritmo del número de anillos. Las variables SexoInfante, Largo, Altura, Peso_carne y Peso_caparazon presentan relaciones estadísticamente significativas con la variable respuesta. En cambio, SexoMacho no resulta significativa (p = 0.2972), por lo que no se evidencia una diferencia estadística respecto a la categoría de referencia.
+El largo, la altura y el peso del caparazón tienen efectos positivos, mientras que el peso de la carne presenta un efecto negativo. Además, el análisis de VIF muestra que Largo, Peso_carne y Peso_caparazon presentan valores relativamente elevados, lo que sugiere cierta multicolinealidad entre las variables físicas, aunque no necesariamente severa.
+En conjunto, el modelo tiene una capacidad explicativa moderada y permite identificar características asociadas con la edad estimada del abalón.
+
+
+## Inferencia para la respuesta: intervalos de confianza y predicción
+
+Se predice el número de anillos de un abulón "típico" de cada sexo (medianas de cada variable dentro del grupo).
+
+```{r rlm-prediccion}
+vars_num_final <- intersect(predictores, all.vars(formula(modelo_final)))
+nuevos <- abalone %>%
+  group_by(Sexo) %>%
+  summarise(across(all_of(vars_num_final), median), .groups = "drop")
+
+back <- if (es_log_final) exp else identity
+pred_ic <- back(predict(modelo_final, nuevos, interval = "confidence"))
+pred_ip <- back(predict(modelo_final, nuevos, interval = "prediction"))
+
+pred_tabla <- nuevos %>%
+  mutate(
+    Anillos_est = pred_ic[, "fit"],
+    IC_inf = pred_ic[, "lwr"], IC_sup = pred_ic[, "upr"],
+    IP_inf = pred_ip[, "lwr"], IP_sup = pred_ip[, "upr"],
+    Edad_est = Anillos_est + 1.5
+  )
+pred_tabla %>% tabla("Predicciones del modelo final para un abulón típico de cada sexo", d = 2)
+```
+
+**INTERPRETACIÓN**
+Las predicciones del modelo muestran que, para las características físicas seleccionadas, las hembras presentan una estimación de 10.93 anillos, los machos de 10.72 y los infantes de 7.66. Al sumar 1.5, se obtiene una edad estimada de 12.43 años para las hembras, 12.22 para los machos y 9.16 para los infantes. Los intervalos de confianza son relativamente estrechos, mientras que los intervalos de predicción son más amplios, reflejando la variabilidad esperada en individuos específicos. En general, el modelo estima una edad mayor para hembras y machos que para los infantes.
+
+
+## Comparación entre los modelos
+
+```{r comparacion-modelos}
+resumen_modelo <- function(m, nombre) {
+  s <- summary(m)
+  tibble(
+    Modelo = nombre,
+    Respuesta = deparse(formula(m)[[2]]),
+    Predictores = length(coef(m)) - 1,
+    R2 = s$r.squared,
+    R2_aj = s$adj.r.squared,
+    Sigma = s$sigma
+  )
+}
+
+comparacion <- bind_rows(
+  resumen_modelo(rls, "RLS"),
+  resumen_modelo(rlm_completo, "RLM completo"),
+  resumen_modelo(rlm_vif, "RLM sin multicolinealidad"),
+  resumen_modelo(modelo_sel, "RLM seleccionado"),
+  resumen_modelo(rls_log, "RLS log-log"),
+  resumen_modelo(rlm_log, "RLM seleccionado con log")
+)
+comparacion %>% tabla("Comparación de los modelos", d = 4)
+```
+
+**INTERPRETACIÓN**
+La comparación muestra que el modelo de regresión lineal simple (RLS) con la variable Anillos explica el 39.36% de la variabilidad, mientras que el modelo de regresión lineal múltiple completo mejora su capacidad explicativa hasta un 54.02%. Al aplicar la transformación logarítmica, el modelo RLS log-log alcanza un R² de 54.68%, y el modelo RLM seleccionado con logaritmo obtiene el mejor resultado, con un R² de 58.58% y un R² ajustado de 58.52%. Además, presenta el menor error residual (Sigma = 0.2056). Por tanto, el modelo RLM seleccionado con transformación logarítmica ofrece el mejor ajuste entre los modelos comparados.
+
+
+# Conclusiones
+A partir del análisis de la base de datos Abalone, se logró estudiar la relación entre las características físicas de los abalones y su edad estimada mediante diferentes modelos de regresión. Los resultados muestran que variables como el largo, la altura, el peso de la carne y el peso del caparazón contribuyen a explicar la variabilidad del número de anillos, aunque algunas observaciones influyentes y la presencia de multicolinealidad pueden afectar las estimaciones.
+La comparación de los modelos permitió identificar que el modelo de regresión lineal múltiple seleccionado con transformación logarítmica presenta el mejor ajuste, con un R² de 58.58% y un error residual de 0.2056. Esto indica que el modelo explica una proporción importante de la variabilidad de la edad estimada, aunque todavía existe un porcentaje que no logra explicar.
+En conclusión, el análisis permitió identificar las características más relacionadas con la edad de los abalones y construir un modelo con una capacidad explicativa moderada. Sin embargo, sus predicciones deben interpretarse con cautela.
+
+
+# Referencias
+
+- Nash, W. J., Sellers, T. L., Talbot, S. R., Cawthorn, A. J., & Ford, W. B. (1994). *The Population Biology of Abalone (Haliotis species) in Tasmania. I. Blacklip Abalone (H. rubra) from the North Coast and Islands of Bass Strait*. Sea Fisheries Division, Technical Report No. 48.
+- Dua, D., & Graff, C. (2019). *UCI Machine Learning Repository: Abalone Data Set*. University of California, Irvine. https://archive.ics.uci.edu/dataset/1/abalone
+- De Oro Aguado, C. *Notas de métodos estadísticos*. https://cdeoroaguado.github.io/rbook_met_estad/
+- R Core Team. *R: A Language and Environment for Statistical Computing*. R Foundation for Statistical Computing.
+
