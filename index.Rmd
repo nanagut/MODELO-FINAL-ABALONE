@@ -14,7 +14,7 @@ github-repo: rstudio/bookdown-demo
 
 # Video
 ```{r, echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/abc123XYZ")
+knitr::include_url("https://youtu.be/NK3fptRXaIU?si=-ZbbH1MldivOnqjh")
 ```
 
 ```{r setup, include=FALSE}
