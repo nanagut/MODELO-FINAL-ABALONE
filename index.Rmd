@@ -11,6 +11,12 @@ link-citations: yes
 github-repo: rstudio/bookdown-demo
 ---
 
+
+# Video
+```{r, echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/abc123XYZ")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE, warning = FALSE, message = FALSE,
@@ -1200,4 +1206,3 @@ En conclusión, el análisis permitió identificar las características más rel
 - Dua, D., & Graff, C. (2019). *UCI Machine Learning Repository: Abalone Data Set*. University of California, Irvine. https://archive.ics.uci.edu/dataset/1/abalone
 - De Oro Aguado, C. *Notas de métodos estadísticos*. https://cdeoroaguado.github.io/rbook_met_estad/
 - R Core Team. *R: A Language and Environment for Statistical Computing*. R Foundation for Statistical Computing.
-

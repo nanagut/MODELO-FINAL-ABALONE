@@ -86,3 +86,4 @@ inferencia-para-la-respuesta-intervalos-de-confianza-y-predicción
 comparación-entre-los-modelos
 conclusiones
 referencias
+video
