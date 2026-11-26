@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Capitulo 7 Análisis exploratorio bivariado | Análisis estadístico de la base de datos Abalone</title>
+  <meta name="description" content="Capitulo 7 Análisis exploratorio bivariado | Análisis estadístico de la base de datos Abalone" />
+  <meta name="generator" content="bookdown 0.48 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Capitulo 7 Análisis exploratorio bivariado | Análisis estadístico de la base de datos Abalone" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Capitulo 7 Análisis exploratorio bivariado | Análisis estadístico de la base de datos Abalone" />
+  
+  
+  
+
+<meta name="author" content="Mariana Gutiérrez - Daniela Idarraga" />
+
+
+<meta name="date" content="2026-11-25" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="análisis-de-las-variables-independientes.html"/>
+<link rel="next" href="correlación-lineal.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Librerías y funciones auxiliares</a></li>
+<li class="chapter" data-level="2" data-path="introducción.html"><a href="introducción.html"><i class="fa fa-check"></i><b>2</b> Introducción</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="introducción.html"><a href="introducción.html#contexto-de-los-datos"><i class="fa fa-check"></i><b>2.1</b> Contexto de los datos</a></li>
+<li class="chapter" data-level="2.2" data-path="introducción.html"><a href="introducción.html#objetivo"><i class="fa fa-check"></i><b>2.2</b> Objetivo</a></li>
+<li class="chapter" data-level="2.3" data-path="introducción.html"><a href="introducción.html#diccionario-de-variables"><i class="fa fa-check"></i><b>2.3</b> Diccionario de variables</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html"><i class="fa fa-check"></i><b>3</b> Extracción, transformación y carga (ETL)</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#carga-de-los-datos"><i class="fa fa-check"></i><b>3.1</b> Carga de los datos</a></li>
+<li class="chapter" data-level="3.2" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#exploraci%C3%B3n-inicial"><i class="fa fa-check"></i><b>3.2</b> Exploración inicial</a></li>
+<li class="chapter" data-level="3.3" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#cambio-de-nombres-unidades-y-tipo-de-variable"><i class="fa fa-check"></i><b>3.3</b> Cambio de nombres, unidades y tipo de variable</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html"><i class="fa fa-check"></i><b>4</b> Calidad de los datos</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#valores-faltantes"><i class="fa fa-check"></i><b>4.1</b> Valores faltantes</a></li>
+<li class="chapter" data-level="4.2" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#valores-imposibles"><i class="fa fa-check"></i><b>4.2</b> Valores imposibles</a></li>
+<li class="chapter" data-level="4.3" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#depuraci%C3%B3n"><i class="fa fa-check"></i><b>4.3</b> Depuración</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><i class="fa fa-check"></i><b>5</b> Análisis exploratorio de la variable respuesta (Anillos)</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html#medidas-descriptivas"><i class="fa fa-check"></i><b>5.1</b> Medidas descriptivas</a></li>
+<li class="chapter" data-level="5.2" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html#pruebas-de-normalidad"><i class="fa fa-check"></i><b>5.2</b> Pruebas de normalidad</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html"><i class="fa fa-check"></i><b>6</b> Análisis de las variables independientes</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html#variables-cuantitativas"><i class="fa fa-check"></i><b>6.1</b> Variables cuantitativas</a></li>
+<li class="chapter" data-level="6.2" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html#variable-categ%C3%B3rica-sexo"><i class="fa fa-check"></i><b>6.2</b> Variable categórica Sexo</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html"><i class="fa fa-check"></i><b>7</b> Análisis exploratorio bivariado</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html#variables-cuantitativas-vs.-anillos"><i class="fa fa-check"></i><b>7.1</b> Variables cuantitativas vs. Anillos</a></li>
+<li class="chapter" data-level="7.2" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html#sexo-vs.-anillos"><i class="fa fa-check"></i><b>7.2</b> Sexo vs. Anillos</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="correlación-lineal.html"><a href="correlación-lineal.html"><i class="fa fa-check"></i><b>8</b> Correlación lineal</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="correlación-lineal.html"><a href="correlación-lineal.html#matriz-de-dispersi%C3%B3n-y-correlaciones"><i class="fa fa-check"></i><b>8.1</b> Matriz de dispersión y correlaciones</a></li>
+<li class="chapter" data-level="8.2" data-path="correlación-lineal.html"><a href="correlación-lineal.html#correlaci%C3%B3n-de-cada-variable-con-anillos-pearson-spearman-y-kendall"><i class="fa fa-check"></i><b>8.2</b> Correlación de cada variable con Anillos (Pearson, Spearman y Kendall)</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><i class="fa fa-check"></i><b>9</b> Pruebas paramétricas y no paramétricas: Anillos según Sexo</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#comparaci%C3%B3n-de-dos-grupos-independientes-hembras-vs.-machos"><i class="fa fa-check"></i><b>9.1</b> Comparación de dos grupos independientes: Hembras vs. Machos</a>
+<ul>
+<li class="chapter" data-level="9.1.1" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#verificaci%C3%B3n-de-supuestos"><i class="fa fa-check"></i><b>9.1.1</b> Verificación de supuestos</a></li>
+<li class="chapter" data-level="9.1.2" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#prueba-t-para-muestras-independientes"><i class="fa fa-check"></i><b>9.1.2</b> Prueba t para muestras independientes</a></li>
+<li class="chapter" data-level="9.1.3" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#prueba-de-mann-whitney-wilcoxon-de-rangos"><i class="fa fa-check"></i><b>9.1.3</b> Prueba de Mann-Whitney (Wilcoxon de rangos)</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#anova-de-un-factor-comparaci%C3%B3n-de-los-tres-grupos"><i class="fa fa-check"></i><b>9.2</b> ANOVA de un factor: comparación de los tres grupos</a></li>
+<li class="chapter" data-level="9.3" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#kruskal-wallis-y-comparaciones-post-hoc"><i class="fa fa-check"></i><b>9.3</b> Kruskal-Wallis y comparaciones post hoc</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"><a href="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"><i class="fa fa-check"></i><b>10</b> Tabla de contingencia: Sexo vs. grupo de edad</a></li>
+<li class="chapter" data-level="11" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html"><i class="fa fa-check"></i><b>11</b> Regresión lineal simple</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#ajuste-del-modelo"><i class="fa fa-check"></i><b>11.1</b> Ajuste del modelo</a></li>
+<li class="chapter" data-level="11.2" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#an%C3%A1lisis-de-residuales-y-validaci%C3%B3n-de-supuestos"><i class="fa fa-check"></i><b>11.2</b> Análisis de residuales y validación de supuestos</a></li>
+<li class="chapter" data-level="11.3" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#transformaci%C3%B3n-para-mejorar-el-ajuste"><i class="fa fa-check"></i><b>11.3</b> Transformación para mejorar el ajuste</a></li>
+<li class="chapter" data-level="11.4" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#estimaci%C3%B3n-de-la-respuesta-media-e-intervalo-de-predicci%C3%B3n"><i class="fa fa-check"></i><b>11.4</b> Estimación de la respuesta media e intervalo de predicción</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html"><i class="fa fa-check"></i><b>12</b> Regresión lineal múltiple</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#variables-dummy-para-sexo"><i class="fa fa-check"></i><b>12.1</b> Variables dummy para Sexo</a></li>
+<li class="chapter" data-level="12.2" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#modelo-completo"><i class="fa fa-check"></i><b>12.2</b> Modelo completo</a></li>
+<li class="chapter" data-level="12.3" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#an%C3%A1lisis-de-multicolinealidad"><i class="fa fa-check"></i><b>12.3</b> Análisis de multicolinealidad</a></li>
+<li class="chapter" data-level="12.4" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#selecci%C3%B3n-de-variables"><i class="fa fa-check"></i><b>12.4</b> Selección de variables</a>
+<ul>
+<li class="chapter" data-level="12.4.1" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#m%C3%A9todo-de-todas-las-regresiones-posibles"><i class="fa fa-check"></i><b>12.4.1</b> Método de todas las regresiones posibles</a></li>
+<li class="chapter" data-level="12.4.2" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#selecci%C3%B3n-secuencial-stepaic"><i class="fa fa-check"></i><b>12.4.2</b> Selección secuencial (stepAIC)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#diagn%C3%B3stico-y-transformaci%C3%B3n-del-modelo-seleccionado"><i class="fa fa-check"></i><b>12.5</b> Diagnóstico y transformación del modelo seleccionado</a></li>
+<li class="chapter" data-level="12.6" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#identificaci%C3%B3n-de-at%C3%ADpicos-y-observaciones-influyentes"><i class="fa fa-check"></i><b>12.6</b> Identificación de atípicos y observaciones influyentes</a></li>
+<li class="chapter" data-level="12.7" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#modelo-final-inferencia-e-interpretaci%C3%B3n"><i class="fa fa-check"></i><b>12.7</b> Modelo final: inferencia e interpretación</a></li>
+<li class="chapter" data-level="12.8" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#inferencia-para-la-respuesta-intervalos-de-confianza-y-predicci%C3%B3n"><i class="fa fa-check"></i><b>12.8</b> Inferencia para la respuesta: intervalos de confianza y predicción</a></li>
+<li class="chapter" data-level="12.9" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#comparaci%C3%B3n-entre-los-modelos"><i class="fa fa-check"></i><b>12.9</b> Comparación entre los modelos</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="conclusiones.html"><a href="conclusiones.html"><i class="fa fa-check"></i><b>13</b> Conclusiones</a></li>
+<li class="chapter" data-level="14" data-path="referencias.html"><a href="referencias.html"><i class="fa fa-check"></i><b>14</b> Referencias</a></li>
+<li class="chapter" data-level="15" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>15</b> Introduction</a></li>
+<li class="chapter" data-level="16" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>16</b> Literature</a></li>
+<li class="chapter" data-level="17" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>17</b> Methods</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="methods.html"><a href="methods.html#math-example"><i class="fa fa-check"></i><b>17.1</b> math example</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="applications.html"><a href="applications.html"><i class="fa fa-check"></i><b>18</b> Applications</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="applications.html"><a href="applications.html#example-one"><i class="fa fa-check"></i><b>18.1</b> Example one</a></li>
+<li class="chapter" data-level="18.2" data-path="applications.html"><a href="applications.html#example-two"><i class="fa fa-check"></i><b>18.2</b> Example two</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>19</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Análisis estadístico de la base de datos Abalone</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="análisis-exploratorio-bivariado" class="section level1 hasAnchor" number="7">
+<h1><span class="header-section-number">Capitulo 7</span> Análisis exploratorio bivariado<a href="análisis-exploratorio-bivariado.html#an%C3%A1lisis-exploratorio-bivariado" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="variables-cuantitativas-vs.-anillos" class="section level2 hasAnchor" number="7.1">
+<h2><span class="header-section-number">7.1</span> Variables cuantitativas vs. Anillos<a href="análisis-exploratorio-bivariado.html#variables-cuantitativas-vs.-anillos" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="análisis-exploratorio-bivariado.html#cb43-1" tabindex="-1"></a>abalone <span class="sc">%&gt;%</span></span>
+<span id="cb43-2"><a href="análisis-exploratorio-bivariado.html#cb43-2" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">all_of</span>(predictores), <span class="at">names_to =</span> <span class="st">&quot;variable&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;valor&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb43-3"><a href="análisis-exploratorio-bivariado.html#cb43-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">variable =</span> <span class="fu">factor</span>(variable, <span class="at">levels =</span> predictores)) <span class="sc">%&gt;%</span></span>
+<span id="cb43-4"><a href="análisis-exploratorio-bivariado.html#cb43-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> valor, <span class="at">y =</span> Anillos)) <span class="sc">+</span></span>
+<span id="cb43-5"><a href="análisis-exploratorio-bivariado.html#cb43-5" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> Sexo), <span class="at">alpha =</span> <span class="fl">0.35</span>, <span class="at">size =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb43-6"><a href="análisis-exploratorio-bivariado.html#cb43-6" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> col_dark, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb43-7"><a href="análisis-exploratorio-bivariado.html#cb43-7" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> col_sexo) <span class="sc">+</span></span>
+<span id="cb43-8"><a href="análisis-exploratorio-bivariado.html#cb43-8" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> variable, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>, <span class="at">ncol =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb43-9"><a href="análisis-exploratorio-bivariado.html#cb43-9" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Relación entre las características físicas y el número de anillos&quot;</span>,</span>
+<span id="cb43-10"><a href="análisis-exploratorio-bivariado.html#cb43-10" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Número de anillos&quot;</span>) <span class="sc">+</span></span>
+<span id="cb43-11"><a href="análisis-exploratorio-bivariado.html#cb43-11" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb43-12"><a href="análisis-exploratorio-bivariado.html#cb43-12" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/dispersion-predictores-1.png" width="864" style="display: block; margin: auto;" /></p>
+<p><strong>INTERPRETACIÓN</strong>
+La gráfica muestra una relación positiva entre el número de anillos y todas las características físicas analizadas. En general, los abulones con mayor largo, diámetro, altura y peso tienden a presentar un mayor número de anillos. El largo y el diámetro presentan tendencias similares, mientras que los diferentes tipos de peso también muestran una tendencia creciente, aunque con bastante dispersión de los datos. En la altura se observa una tendencia positiva muy marcada, pero también aparece un valor atípico que se aleja considerablemente del resto.</p>
+</div>
+<div id="sexo-vs.-anillos" class="section level2 hasAnchor" number="7.2">
+<h2><span class="header-section-number">7.2</span> Sexo vs. Anillos<a href="análisis-exploratorio-bivariado.html#sexo-vs.-anillos" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="análisis-exploratorio-bivariado.html#cb44-1" tabindex="-1"></a>res_sexo <span class="ot">&lt;-</span> abalone <span class="sc">%&gt;%</span></span>
+<span id="cb44-2"><a href="análisis-exploratorio-bivariado.html#cb44-2" tabindex="-1"></a>  <span class="fu">group_by</span>(Sexo) <span class="sc">%&gt;%</span></span>
+<span id="cb44-3"><a href="análisis-exploratorio-bivariado.html#cb44-3" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">resumen</span>(Anillos))</span>
+<span id="cb44-4"><a href="análisis-exploratorio-bivariado.html#cb44-4" tabindex="-1"></a>res_sexo <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Anillos según sexo&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:resumen-anillos-sexo">Table 7.1: </span>Anillos según sexo</caption>
+<colgroup>
+<col width="9%" />
+<col width="5%" />
+<col width="8%" />
+<col width="6%" />
+<col width="9%" />
+<col width="4%" />
+<col width="3%" />
+<col width="3%" />
+<col width="8%" />
+<col width="8%" />
+<col width="11%" />
+<col width="10%" />
+<col width="10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Sexo</th>
+<th align="right">n</th>
+<th align="right">media</th>
+<th align="right">sd</th>
+<th align="right">mediana</th>
+<th align="right">RIC</th>
+<th align="right">Q1</th>
+<th align="right">Q3</th>
+<th align="right">minimo</th>
+<th align="right">maximo</th>
+<th align="right">asimetria</th>
+<th align="right">curtosis</th>
+<th align="right">atipicos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Hembra</td>
+<td align="right">1307</td>
+<td align="right">11.129</td>
+<td align="right">3.104</td>
+<td align="right">10</td>
+<td align="right">3</td>
+<td align="right">9</td>
+<td align="right">12</td>
+<td align="right">5</td>
+<td align="right">29</td>
+<td align="right">1.472</td>
+<td align="right">6.107</td>
+<td align="right">92</td>
+</tr>
+<tr class="even">
+<td align="left">Macho</td>
+<td align="right">1528</td>
+<td align="right">10.705</td>
+<td align="right">3.026</td>
+<td align="right">10</td>
+<td align="right">3</td>
+<td align="right">9</td>
+<td align="right">12</td>
+<td align="right">3</td>
+<td align="right">27</td>
+<td align="right">1.254</td>
+<td align="right">5.601</td>
+<td align="right">94</td>
+</tr>
+<tr class="odd">
+<td align="left">Infante</td>
+<td align="right">1336</td>
+<td align="right">7.897</td>
+<td align="right">2.514</td>
+<td align="right">8</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">9</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">1.322</td>
+<td align="right">6.381</td>
+<td align="right">49</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretacion:</strong>
+En esta tabla se observa que las hembras presentan el mayor promedio de anillos (11,129), seguidas por los machos (10,705), mientras que los infantes tienen un promedio menor (7,897). La mediana es de 10 anillos para hembras y machos, y de 8 para los infantes. La variabilidad es similar entre los grupos, aunque los infantes presentan una desviación estándar menor. En los tres grupos hay asimetría positiva, es decir, algunos individuos presentan un número de anillos considerablemente mayor que la mayoría. También se identifican valores atípicos en los tres grupos, siendo 94 en machos, 92 en hembras y 49 en infantes.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="análisis-exploratorio-bivariado.html#cb45-1" tabindex="-1"></a>abalone <span class="sc">%&gt;%</span></span>
+<span id="cb45-2"><a href="análisis-exploratorio-bivariado.html#cb45-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Sexo, <span class="at">y =</span> Anillos, <span class="at">fill =</span> Sexo)) <span class="sc">+</span></span>
+<span id="cb45-3"><a href="análisis-exploratorio-bivariado.html#cb45-3" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">color =</span> col_dark, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb45-4"><a href="análisis-exploratorio-bivariado.html#cb45-4" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="at">shape =</span> <span class="dv">20</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;black&quot;</span>) <span class="sc">+</span></span>
+<span id="cb45-5"><a href="análisis-exploratorio-bivariado.html#cb45-5" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> col_sexo) <span class="sc">+</span></span>
+<span id="cb45-6"><a href="análisis-exploratorio-bivariado.html#cb45-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Número de anillos según sexo&quot;</span>,</span>
+<span id="cb45-7"><a href="análisis-exploratorio-bivariado.html#cb45-7" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;El punto negro indica la media&quot;</span>,</span>
+<span id="cb45-8"><a href="análisis-exploratorio-bivariado.html#cb45-8" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Sexo&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Número de anillos&quot;</span>) <span class="sc">+</span></span>
+<span id="cb45-9"><a href="análisis-exploratorio-bivariado.html#cb45-9" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/boxplot-anillos-sexo-1.png" width="864" style="display: block; margin: auto;" /></p>
+<p><strong>INTERPRETACIÓN</strong>
+El diagrama muestra que las hembras y los machos presentan un comportamiento similar en cuanto al número de anillos, con una media aproximada de 11 y una mediana de 10 anillos. En cambio, los ejemplares infantiles presentan valores inferiores, con una media cercana a 8 anillos. Además, se observa una dispersión similar entre hembras y machos, así como la presencia de valores atípicos en los tres grupos. En conclusión, los ejemplares infantiles tienden a presentar un menor número de anillos que los adultos, mientras que no se aprecian diferencias importantes entre hembras y machos.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="análisis-de-las-variables-independientes.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="correlación-lineal.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/rstudio/bookdown-demo/edit/master/index.Rmd",
+    "text": "Edit"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["bookdown-demo.pdf", "bookdown-demo.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Capitulo 11 Regresión lineal simple | Análisis estadístico de la base de datos Abalone</title>
+  <meta name="description" content="Capitulo 11 Regresión lineal simple | Análisis estadístico de la base de datos Abalone" />
+  <meta name="generator" content="bookdown 0.48 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Capitulo 11 Regresión lineal simple | Análisis estadístico de la base de datos Abalone" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Capitulo 11 Regresión lineal simple | Análisis estadístico de la base de datos Abalone" />
+  
+  
+  
+
+<meta name="author" content="Mariana Gutiérrez - Daniela Idarraga" />
+
+
+<meta name="date" content="2026-11-25" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"/>
+<link rel="next" href="regresión-lineal-múltiple.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Librerías y funciones auxiliares</a></li>
+<li class="chapter" data-level="2" data-path="introducción.html"><a href="introducción.html"><i class="fa fa-check"></i><b>2</b> Introducción</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="introducción.html"><a href="introducción.html#contexto-de-los-datos"><i class="fa fa-check"></i><b>2.1</b> Contexto de los datos</a></li>
+<li class="chapter" data-level="2.2" data-path="introducción.html"><a href="introducción.html#objetivo"><i class="fa fa-check"></i><b>2.2</b> Objetivo</a></li>
+<li class="chapter" data-level="2.3" data-path="introducción.html"><a href="introducción.html#diccionario-de-variables"><i class="fa fa-check"></i><b>2.3</b> Diccionario de variables</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html"><i class="fa fa-check"></i><b>3</b> Extracción, transformación y carga (ETL)</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#carga-de-los-datos"><i class="fa fa-check"></i><b>3.1</b> Carga de los datos</a></li>
+<li class="chapter" data-level="3.2" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#exploraci%C3%B3n-inicial"><i class="fa fa-check"></i><b>3.2</b> Exploración inicial</a></li>
+<li class="chapter" data-level="3.3" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#cambio-de-nombres-unidades-y-tipo-de-variable"><i class="fa fa-check"></i><b>3.3</b> Cambio de nombres, unidades y tipo de variable</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html"><i class="fa fa-check"></i><b>4</b> Calidad de los datos</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#valores-faltantes"><i class="fa fa-check"></i><b>4.1</b> Valores faltantes</a></li>
+<li class="chapter" data-level="4.2" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#valores-imposibles"><i class="fa fa-check"></i><b>4.2</b> Valores imposibles</a></li>
+<li class="chapter" data-level="4.3" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#depuraci%C3%B3n"><i class="fa fa-check"></i><b>4.3</b> Depuración</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><i class="fa fa-check"></i><b>5</b> Análisis exploratorio de la variable respuesta (Anillos)</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html#medidas-descriptivas"><i class="fa fa-check"></i><b>5.1</b> Medidas descriptivas</a></li>
+<li class="chapter" data-level="5.2" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html#pruebas-de-normalidad"><i class="fa fa-check"></i><b>5.2</b> Pruebas de normalidad</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html"><i class="fa fa-check"></i><b>6</b> Análisis de las variables independientes</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html#variables-cuantitativas"><i class="fa fa-check"></i><b>6.1</b> Variables cuantitativas</a></li>
+<li class="chapter" data-level="6.2" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html#variable-categ%C3%B3rica-sexo"><i class="fa fa-check"></i><b>6.2</b> Variable categórica Sexo</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html"><i class="fa fa-check"></i><b>7</b> Análisis exploratorio bivariado</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html#variables-cuantitativas-vs.-anillos"><i class="fa fa-check"></i><b>7.1</b> Variables cuantitativas vs. Anillos</a></li>
+<li class="chapter" data-level="7.2" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html#sexo-vs.-anillos"><i class="fa fa-check"></i><b>7.2</b> Sexo vs. Anillos</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="correlación-lineal.html"><a href="correlación-lineal.html"><i class="fa fa-check"></i><b>8</b> Correlación lineal</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="correlación-lineal.html"><a href="correlación-lineal.html#matriz-de-dispersi%C3%B3n-y-correlaciones"><i class="fa fa-check"></i><b>8.1</b> Matriz de dispersión y correlaciones</a></li>
+<li class="chapter" data-level="8.2" data-path="correlación-lineal.html"><a href="correlación-lineal.html#correlaci%C3%B3n-de-cada-variable-con-anillos-pearson-spearman-y-kendall"><i class="fa fa-check"></i><b>8.2</b> Correlación de cada variable con Anillos (Pearson, Spearman y Kendall)</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><i class="fa fa-check"></i><b>9</b> Pruebas paramétricas y no paramétricas: Anillos según Sexo</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#comparaci%C3%B3n-de-dos-grupos-independientes-hembras-vs.-machos"><i class="fa fa-check"></i><b>9.1</b> Comparación de dos grupos independientes: Hembras vs. Machos</a>
+<ul>
+<li class="chapter" data-level="9.1.1" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#verificaci%C3%B3n-de-supuestos"><i class="fa fa-check"></i><b>9.1.1</b> Verificación de supuestos</a></li>
+<li class="chapter" data-level="9.1.2" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#prueba-t-para-muestras-independientes"><i class="fa fa-check"></i><b>9.1.2</b> Prueba t para muestras independientes</a></li>
+<li class="chapter" data-level="9.1.3" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#prueba-de-mann-whitney-wilcoxon-de-rangos"><i class="fa fa-check"></i><b>9.1.3</b> Prueba de Mann-Whitney (Wilcoxon de rangos)</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#anova-de-un-factor-comparaci%C3%B3n-de-los-tres-grupos"><i class="fa fa-check"></i><b>9.2</b> ANOVA de un factor: comparación de los tres grupos</a></li>
+<li class="chapter" data-level="9.3" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#kruskal-wallis-y-comparaciones-post-hoc"><i class="fa fa-check"></i><b>9.3</b> Kruskal-Wallis y comparaciones post hoc</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"><a href="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"><i class="fa fa-check"></i><b>10</b> Tabla de contingencia: Sexo vs. grupo de edad</a></li>
+<li class="chapter" data-level="11" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html"><i class="fa fa-check"></i><b>11</b> Regresión lineal simple</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#ajuste-del-modelo"><i class="fa fa-check"></i><b>11.1</b> Ajuste del modelo</a></li>
+<li class="chapter" data-level="11.2" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#an%C3%A1lisis-de-residuales-y-validaci%C3%B3n-de-supuestos"><i class="fa fa-check"></i><b>11.2</b> Análisis de residuales y validación de supuestos</a></li>
+<li class="chapter" data-level="11.3" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#transformaci%C3%B3n-para-mejorar-el-ajuste"><i class="fa fa-check"></i><b>11.3</b> Transformación para mejorar el ajuste</a></li>
+<li class="chapter" data-level="11.4" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#estimaci%C3%B3n-de-la-respuesta-media-e-intervalo-de-predicci%C3%B3n"><i class="fa fa-check"></i><b>11.4</b> Estimación de la respuesta media e intervalo de predicción</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html"><i class="fa fa-check"></i><b>12</b> Regresión lineal múltiple</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#variables-dummy-para-sexo"><i class="fa fa-check"></i><b>12.1</b> Variables dummy para Sexo</a></li>
+<li class="chapter" data-level="12.2" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#modelo-completo"><i class="fa fa-check"></i><b>12.2</b> Modelo completo</a></li>
+<li class="chapter" data-level="12.3" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#an%C3%A1lisis-de-multicolinealidad"><i class="fa fa-check"></i><b>12.3</b> Análisis de multicolinealidad</a></li>
+<li class="chapter" data-level="12.4" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#selecci%C3%B3n-de-variables"><i class="fa fa-check"></i><b>12.4</b> Selección de variables</a>
+<ul>
+<li class="chapter" data-level="12.4.1" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#m%C3%A9todo-de-todas-las-regresiones-posibles"><i class="fa fa-check"></i><b>12.4.1</b> Método de todas las regresiones posibles</a></li>
+<li class="chapter" data-level="12.4.2" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#selecci%C3%B3n-secuencial-stepaic"><i class="fa fa-check"></i><b>12.4.2</b> Selección secuencial (stepAIC)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#diagn%C3%B3stico-y-transformaci%C3%B3n-del-modelo-seleccionado"><i class="fa fa-check"></i><b>12.5</b> Diagnóstico y transformación del modelo seleccionado</a></li>
+<li class="chapter" data-level="12.6" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#identificaci%C3%B3n-de-at%C3%ADpicos-y-observaciones-influyentes"><i class="fa fa-check"></i><b>12.6</b> Identificación de atípicos y observaciones influyentes</a></li>
+<li class="chapter" data-level="12.7" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#modelo-final-inferencia-e-interpretaci%C3%B3n"><i class="fa fa-check"></i><b>12.7</b> Modelo final: inferencia e interpretación</a></li>
+<li class="chapter" data-level="12.8" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#inferencia-para-la-respuesta-intervalos-de-confianza-y-predicci%C3%B3n"><i class="fa fa-check"></i><b>12.8</b> Inferencia para la respuesta: intervalos de confianza y predicción</a></li>
+<li class="chapter" data-level="12.9" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#comparaci%C3%B3n-entre-los-modelos"><i class="fa fa-check"></i><b>12.9</b> Comparación entre los modelos</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="conclusiones.html"><a href="conclusiones.html"><i class="fa fa-check"></i><b>13</b> Conclusiones</a></li>
+<li class="chapter" data-level="14" data-path="referencias.html"><a href="referencias.html"><i class="fa fa-check"></i><b>14</b> Referencias</a></li>
+<li class="chapter" data-level="15" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>15</b> Introduction</a></li>
+<li class="chapter" data-level="16" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>16</b> Literature</a></li>
+<li class="chapter" data-level="17" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>17</b> Methods</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="methods.html"><a href="methods.html#math-example"><i class="fa fa-check"></i><b>17.1</b> math example</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="applications.html"><a href="applications.html"><i class="fa fa-check"></i><b>18</b> Applications</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="applications.html"><a href="applications.html#example-one"><i class="fa fa-check"></i><b>18.1</b> Example one</a></li>
+<li class="chapter" data-level="18.2" data-path="applications.html"><a href="applications.html#example-two"><i class="fa fa-check"></i><b>18.2</b> Example two</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>19</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Análisis estadístico de la base de datos Abalone</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="regresión-lineal-simple" class="section level1 hasAnchor" number="11">
+<h1><span class="header-section-number">Capitulo 11</span> Regresión lineal simple<a href="regresión-lineal-simple.html#regresi%C3%B3n-lineal-simple" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Se usa como predictor la variable con mayor correlación con Anillos: <strong>Peso_caparazon</strong>.</p>
+<p><span class="math display">\[\text{Anillos}_i = \beta_0 + \beta_1\,\text{Peso_caparazon}_i + \varepsilon_i,\qquad \varepsilon_i \sim N(0, \sigma^2)\]</span></p>
+<div id="ajuste-del-modelo" class="section level2 hasAnchor" number="11.1">
+<h2><span class="header-section-number">11.1</span> Ajuste del modelo<a href="regresión-lineal-simple.html#ajuste-del-modelo" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="regresión-lineal-simple.html#cb92-1" tabindex="-1"></a>f_rls <span class="ot">&lt;-</span> <span class="fu">reformulate</span>(mejor_pred, <span class="at">response =</span> <span class="st">&quot;Anillos&quot;</span>)</span>
+<span id="cb92-2"><a href="regresión-lineal-simple.html#cb92-2" tabindex="-1"></a>rls <span class="ot">&lt;-</span> <span class="fu">eval</span>(<span class="fu">bquote</span>(<span class="fu">lm</span>(.(f_rls), <span class="at">data =</span> abalone)))</span>
+<span id="cb92-3"><a href="regresión-lineal-simple.html#cb92-3" tabindex="-1"></a><span class="fu">summary</span>(rls)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = Anillos ~ Peso_caparazon, data = abalone)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.9836 -1.6023 -0.5854  0.9456 15.6319 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    6.466010   0.077253   83.70   &lt;2e-16 ***
+## Peso_caparazon 0.072653   0.001397   52.02   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.51 on 4169 degrees of freedom
+## Multiple R-squared:  0.3936, Adjusted R-squared:  0.3934 
+## F-statistic:  2706 on 1 and 4169 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="regresión-lineal-simple.html#cb94-1" tabindex="-1"></a>s_rls  <span class="ot">&lt;-</span> <span class="fu">summary</span>(rls)</span>
+<span id="cb94-2"><a href="regresión-lineal-simple.html#cb94-2" tabindex="-1"></a>co_rls <span class="ot">&lt;-</span> <span class="fu">coef</span>(s_rls)</span>
+<span id="cb94-3"><a href="regresión-lineal-simple.html#cb94-3" tabindex="-1"></a>ic_rls <span class="ot">&lt;-</span> <span class="fu">confint.default</span>(rls)</span>
+<span id="cb94-4"><a href="regresión-lineal-simple.html#cb94-4" tabindex="-1"></a>ic_rls</span></code></pre></div>
+<pre><code>##                    2.5 %     97.5 %
+## (Intercept)    6.3145961 6.61742414
+## Peso_caparazon 0.0699158 0.07539071</code></pre>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="regresión-lineal-simple.html#cb96-1" tabindex="-1"></a><span class="fu">anova</span>(rls)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: Anillos
+##                  Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Peso_caparazon    1  17053 17052.5  2705.9 &lt; 2.2e-16 ***
+## Residuals      4169  26273     6.3                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="regresión-lineal-simple.html#cb98-1" tabindex="-1"></a><span class="co"># Intervalo de confianza para sigma^2</span></span>
+<span id="cb98-2"><a href="regresión-lineal-simple.html#cb98-2" tabindex="-1"></a>gl_rls <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(rls)</span>
+<span id="cb98-3"><a href="regresión-lineal-simple.html#cb98-3" tabindex="-1"></a>s2_rls <span class="ot">&lt;-</span> s_rls<span class="sc">$</span>sigma<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb98-4"><a href="regresión-lineal-simple.html#cb98-4" tabindex="-1"></a>ic_s2  <span class="ot">&lt;-</span> <span class="fu">c</span>(gl_rls <span class="sc">*</span> s2_rls <span class="sc">/</span> <span class="fu">qchisq</span>(<span class="fl">0.975</span>, gl_rls),</span>
+<span id="cb98-5"><a href="regresión-lineal-simple.html#cb98-5" tabindex="-1"></a>            gl_rls <span class="sc">*</span> s2_rls <span class="sc">/</span> <span class="fu">qchisq</span>(<span class="fl">0.025</span>, gl_rls))</span>
+<span id="cb98-6"><a href="regresión-lineal-simple.html#cb98-6" tabindex="-1"></a>ic_s2</span></code></pre></div>
+<pre><code>## [1] 6.039953 6.581507</code></pre>
+<p><strong>Interpretación:</strong>
+El modelo de regresión lineal muestra una relación positiva y estadísticamente significativa entre el peso del caparazón y el número de anillos (p &lt; 0,001). El coeficiente de determinación (R² = 0,3936) indica que el peso del caparazón explica aproximadamente el 39,36 % de la variabilidad del número de anillos. En conclusión, a mayor peso del caparazón, tiende a aumentar el número de anillos, aunque el modelo no explica toda su variación.</p>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="regresión-lineal-simple.html#cb100-1" tabindex="-1"></a>abalone <span class="sc">%&gt;%</span></span>
+<span id="cb100-2"><a href="regresión-lineal-simple.html#cb100-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> .data[[mejor_pred]], <span class="at">y =</span> Anillos)) <span class="sc">+</span></span>
+<span id="cb100-3"><a href="regresión-lineal-simple.html#cb100-3" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> col_point, <span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb100-4"><a href="regresión-lineal-simple.html#cb100-4" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> col_dark, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb100-5"><a href="regresión-lineal-simple.html#cb100-5" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">&quot;Regresión lineal simple: Anillos ~&quot;</span>, mejor_pred),</span>
+<span id="cb100-6"><a href="regresión-lineal-simple.html#cb100-6" tabindex="-1"></a>       <span class="at">x =</span> mejor_pred, <span class="at">y =</span> <span class="st">&quot;Número de anillos&quot;</span>) <span class="sc">+</span></span>
+<span id="cb100-7"><a href="regresión-lineal-simple.html#cb100-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rls-grafico-1.png" width="864" style="display: block; margin: auto;" /></p>
+<p><strong>INTERPRETACIÓN</strong>
+El gráfico muestra una relación positiva entre el peso del caparazón y el número de anillos. Se observa que, a medida que aumenta el peso del caparazón, también tiende a aumentar el número de anillos. Sin embargo, los datos presentan cierta dispersión, lo que indica que el peso no explica completamente las variaciones en la cantidad de anillos. Esto confirma la relación positiva encontrada en el modelo de regresión lineal.</p>
+</div>
+<div id="análisis-de-residuales-y-validación-de-supuestos" class="section level2 hasAnchor" number="11.2">
+<h2><span class="header-section-number">11.2</span> Análisis de residuales y validación de supuestos<a href="regresión-lineal-simple.html#an%C3%A1lisis-de-residuales-y-validaci%C3%B3n-de-supuestos" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="regresión-lineal-simple.html#cb101-1" tabindex="-1"></a>graficos_residuos <span class="ot">&lt;-</span> <span class="cf">function</span>(modelo, titulo) {</span>
+<span id="cb101-2"><a href="regresión-lineal-simple.html#cb101-2" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">ajustados =</span> <span class="fu">fitted</span>(modelo), <span class="at">residuos =</span> <span class="fu">residuals</span>(modelo),</span>
+<span id="cb101-3"><a href="regresión-lineal-simple.html#cb101-3" tabindex="-1"></a>               <span class="at">orden =</span> <span class="fu">seq_along</span>(residuos))</span>
+<span id="cb101-4"><a href="regresión-lineal-simple.html#cb101-4" tabindex="-1"></a>  g1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(ajustados, residuos)) <span class="sc">+</span></span>
+<span id="cb101-5"><a href="regresión-lineal-simple.html#cb101-5" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> col_point) <span class="sc">+</span></span>
+<span id="cb101-6"><a href="regresión-lineal-simple.html#cb101-6" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb101-7"><a href="regresión-lineal-simple.html#cb101-7" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Residuos vs. ajustados&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Valores ajustados&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuos&quot;</span>) <span class="sc">+</span></span>
+<span id="cb101-8"><a href="regresión-lineal-simple.html#cb101-8" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span>
+<span id="cb101-9"><a href="regresión-lineal-simple.html#cb101-9" tabindex="-1"></a>  g2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(residuos)) <span class="sc">+</span></span>
+<span id="cb101-10"><a href="regresión-lineal-simple.html#cb101-10" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>,</span>
+<span id="cb101-11"><a href="regresión-lineal-simple.html#cb101-11" tabindex="-1"></a>                   <span class="at">fill =</span> col_fill, <span class="at">color =</span> col_line) <span class="sc">+</span></span>
+<span id="cb101-12"><a href="regresión-lineal-simple.html#cb101-12" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">color =</span> col_dark, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb101-13"><a href="regresión-lineal-simple.html#cb101-13" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Histograma de residuos&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Residuos&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Densidad&quot;</span>) <span class="sc">+</span></span>
+<span id="cb101-14"><a href="regresión-lineal-simple.html#cb101-14" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span>
+<span id="cb101-15"><a href="regresión-lineal-simple.html#cb101-15" tabindex="-1"></a>  g3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(orden, residuos)) <span class="sc">+</span></span>
+<span id="cb101-16"><a href="regresión-lineal-simple.html#cb101-16" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> col_point) <span class="sc">+</span></span>
+<span id="cb101-17"><a href="regresión-lineal-simple.html#cb101-17" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb101-18"><a href="regresión-lineal-simple.html#cb101-18" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Residuos vs. orden&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Orden de la observación&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuos&quot;</span>) <span class="sc">+</span></span>
+<span id="cb101-19"><a href="regresión-lineal-simple.html#cb101-19" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span>
+<span id="cb101-20"><a href="regresión-lineal-simple.html#cb101-20" tabindex="-1"></a>  <span class="fu">print</span>((g1 <span class="sc">+</span> g2) <span class="sc">/</span> g3 <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">title =</span> titulo))</span>
+<span id="cb101-21"><a href="regresión-lineal-simple.html#cb101-21" tabindex="-1"></a>}</span>
+<span id="cb101-22"><a href="regresión-lineal-simple.html#cb101-22" tabindex="-1"></a></span>
+<span id="cb101-23"><a href="regresión-lineal-simple.html#cb101-23" tabindex="-1"></a>pruebas_supuestos <span class="ot">&lt;-</span> <span class="cf">function</span>(modelo) {</span>
+<span id="cb101-24"><a href="regresión-lineal-simple.html#cb101-24" tabindex="-1"></a>  e   <span class="ot">&lt;-</span> <span class="fu">residuals</span>(modelo)</span>
+<span id="cb101-25"><a href="regresión-lineal-simple.html#cb101-25" tabindex="-1"></a>  sw  <span class="ot">&lt;-</span> <span class="fu">shapiro.test</span>(e)</span>
+<span id="cb101-26"><a href="regresión-lineal-simple.html#cb101-26" tabindex="-1"></a>  tm  <span class="ot">&lt;-</span> <span class="fu">t.test</span>(e, <span class="at">mu =</span> <span class="dv">0</span>)</span>
+<span id="cb101-27"><a href="regresión-lineal-simple.html#cb101-27" tabindex="-1"></a>  bp  <span class="ot">&lt;-</span> <span class="fu">bptest</span>(modelo)</span>
+<span id="cb101-28"><a href="regresión-lineal-simple.html#cb101-28" tabindex="-1"></a>  ncv <span class="ot">&lt;-</span> <span class="fu">ncvTest</span>(modelo)</span>
+<span id="cb101-29"><a href="regresión-lineal-simple.html#cb101-29" tabindex="-1"></a>  dw  <span class="ot">&lt;-</span> <span class="fu">durbinWatsonTest</span>(modelo)</span>
+<span id="cb101-30"><a href="regresión-lineal-simple.html#cb101-30" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb101-31"><a href="regresión-lineal-simple.html#cb101-31" tabindex="-1"></a>    <span class="at">Supuesto =</span> <span class="fu">c</span>(<span class="st">&quot;Normalidad&quot;</span>, <span class="st">&quot;Media cero&quot;</span>, <span class="st">&quot;Varianza constante&quot;</span>,</span>
+<span id="cb101-32"><a href="regresión-lineal-simple.html#cb101-32" tabindex="-1"></a>                 <span class="st">&quot;Varianza constante&quot;</span>, <span class="st">&quot;Independencia&quot;</span>),</span>
+<span id="cb101-33"><a href="regresión-lineal-simple.html#cb101-33" tabindex="-1"></a>    <span class="at">Prueba =</span> <span class="fu">c</span>(<span class="st">&quot;Shapiro-Wilk&quot;</span>, <span class="st">&quot;t de una muestra (mu = 0)&quot;</span>, <span class="st">&quot;Breusch-Pagan&quot;</span>,</span>
+<span id="cb101-34"><a href="regresión-lineal-simple.html#cb101-34" tabindex="-1"></a>               <span class="st">&quot;ncvTest (car)&quot;</span>, <span class="st">&quot;Durbin-Watson&quot;</span>),</span>
+<span id="cb101-35"><a href="regresión-lineal-simple.html#cb101-35" tabindex="-1"></a>    <span class="at">Estadistico =</span> <span class="fu">c</span>(sw<span class="sc">$</span>statistic, tm<span class="sc">$</span>statistic, bp<span class="sc">$</span>statistic, ncv<span class="sc">$</span>ChiSquare, dw<span class="sc">$</span>dw),</span>
+<span id="cb101-36"><a href="regresión-lineal-simple.html#cb101-36" tabindex="-1"></a>    <span class="at">p_valor =</span> <span class="fu">c</span>(sw<span class="sc">$</span>p.value, tm<span class="sc">$</span>p.value, bp<span class="sc">$</span>p.value, ncv<span class="sc">$</span>p, dw<span class="sc">$</span>p),</span>
+<span id="cb101-37"><a href="regresión-lineal-simple.html#cb101-37" tabindex="-1"></a>    <span class="at">Conclusion =</span> <span class="fu">ifelse</span>(p_valor <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="st">&quot;No se cumple (se rechaza H0)&quot;</span>,</span>
+<span id="cb101-38"><a href="regresión-lineal-simple.html#cb101-38" tabindex="-1"></a>                        <span class="st">&quot;Se cumple (no se rechaza H0)&quot;</span>)</span>
+<span id="cb101-39"><a href="regresión-lineal-simple.html#cb101-39" tabindex="-1"></a>  )</span>
+<span id="cb101-40"><a href="regresión-lineal-simple.html#cb101-40" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="regresión-lineal-simple.html#cb102-1" tabindex="-1"></a><span class="fu">graficos_residuos</span>(rls, <span class="fu">paste</span>(<span class="st">&quot;Diagnóstico RLS: Anillos ~&quot;</span>, mejor_pred))</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rls-residuales-1.png" width="864" style="display: block; margin: auto;" />
+<strong>Interpretación:</strong>
+Los gráficos evidencian que los residuos presentan una distribución asimétrica, alejada de la normalidad, con algunos valores extremos. Asimismo, se observa una dispersión irregular en los residuos respecto a los valores ajustados y a lo largo del orden de las observaciones, lo que sugiere posibles problemas de heterocedasticidad. Estos comportamientos indican que el modelo presenta limitaciones en el cumplimiento de los supuestos de regresión lineal.</p>
+<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="regresión-lineal-simple.html#cb103-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb103-2"><a href="regresión-lineal-simple.html#cb103-2" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">qqPlot</span>(<span class="fu">residuals</span>(rls), <span class="at">main =</span> <span class="st">&quot;QQ de los residuos (RLS)&quot;</span>,</span>
+<span id="cb103-3"><a href="regresión-lineal-simple.html#cb103-3" tabindex="-1"></a>                 <span class="at">xlab =</span> <span class="st">&quot;Cuantiles teóricos&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Residuos&quot;</span>, <span class="at">id =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb103-4"><a href="regresión-lineal-simple.html#cb103-4" tabindex="-1"></a><span class="fu">acf</span>(<span class="fu">residuals</span>(rls), <span class="at">main =</span> <span class="st">&quot;Autocorrelación de los residuos (RLS)&quot;</span>)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rls-qq-acf-1.png" width="864" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="regresión-lineal-simple.html#cb104-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
+<p><strong>Interpretación:</strong>
+El gráfico QQ muestra que los residuos se alejan de la línea de referencia, especialmente en los valores extremos, lo que evidencia que no siguen una distribución normal. Por otra parte, el gráfico de autocorrelación presenta valores positivos que superan los límites de confianza en varios rezagos, indicando una fuerte dependencia entre los residuos. Esto sugiere que no se cumple el supuesto de independencia de los errores y que el modelo presenta limitaciones en su ajuste estadístico.</p>
+<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="regresión-lineal-simple.html#cb105-1" tabindex="-1"></a>sup_rls <span class="ot">&lt;-</span> <span class="fu">pruebas_supuestos</span>(rls)</span>
+<span id="cb105-2"><a href="regresión-lineal-simple.html#cb105-2" tabindex="-1"></a>sup_rls <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Pruebas de supuestos de la RLS&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:rls-supuestos">Table 11.1: </span>Pruebas de supuestos de la RLS</caption>
+<colgroup>
+<col width="20%" />
+<col width="27%" />
+<col width="12%" />
+<col width="8%" />
+<col width="30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Supuesto</th>
+<th align="left">Prueba</th>
+<th align="right">Estadistico</th>
+<th align="right">p_valor</th>
+<th align="left">Conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Normalidad</td>
+<td align="left">Shapiro-Wilk</td>
+<td align="right">0.8926</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Media cero</td>
+<td align="left">t de una muestra (mu = 0)</td>
+<td align="right">0.0000</td>
+<td align="right">1</td>
+<td align="left">Se cumple (no se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Varianza constante</td>
+<td align="left">Breusch-Pagan</td>
+<td align="right">124.2477</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Varianza constante</td>
+<td align="left">ncvTest (car)</td>
+<td align="right">336.2632</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Independencia</td>
+<td align="left">Durbin-Watson</td>
+<td align="right">1.0161</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+Las pruebas indican que el modelo cumple con el supuesto de media cero, pero no cumple con los de normalidad (p &lt; 0,001), varianza constante (p &lt; 0,001) e independencia (p &lt; 0,001). Esto evidencia que los residuos presentan desviaciones importantes respecto a los supuestos de la regresión lineal, por lo que el modelo debe interpretarse con precaución.</p>
+</div>
+<div id="transformación-para-mejorar-el-ajuste" class="section level2 hasAnchor" number="11.3">
+<h2><span class="header-section-number">11.3</span> Transformación para mejorar el ajuste<a href="regresión-lineal-simple.html#transformaci%C3%B3n-para-mejorar-el-ajuste" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Los anillos son un conteo positivo cuya variabilidad crece con la media, y la relación con el peso es curva (crecimiento que se desacelera). Entre las transformaciones vistas, el modelo <strong>log-log</strong> corrige ambos problemas a la vez:</p>
+<p><span class="math display">\[\log(\text{Anillos}_i) = \beta_0 + \beta_1 \log(\text{Peso_caparazon}_i) + \varepsilon_i\]</span></p>
+<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="regresión-lineal-simple.html#cb106-1" tabindex="-1"></a>f_rls_log <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste0</span>(<span class="st">&quot;log(Anillos) ~ log(&quot;</span>, mejor_pred, <span class="st">&quot;)&quot;</span>))</span>
+<span id="cb106-2"><a href="regresión-lineal-simple.html#cb106-2" tabindex="-1"></a>rls_log <span class="ot">&lt;-</span> <span class="fu">eval</span>(<span class="fu">bquote</span>(<span class="fu">lm</span>(.(f_rls_log), <span class="at">data =</span> abalone)))</span>
+<span id="cb106-3"><a href="regresión-lineal-simple.html#cb106-3" tabindex="-1"></a><span class="fu">summary</span>(rls_log)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = log(Anillos) ~ log(Peso_caparazon), data = abalone)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.83950 -0.14726 -0.04125  0.11959  0.85134 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         1.190047   0.015259   77.99   &lt;2e-16 ***
+## log(Peso_caparazon) 0.291160   0.004105   70.93   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.215 on 4169 degrees of freedom
+## Multiple R-squared:  0.5468, Adjusted R-squared:  0.5467 
+## F-statistic:  5031 on 1 and 4169 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="regresión-lineal-simple.html#cb108-1" tabindex="-1"></a>s_rls_log  <span class="ot">&lt;-</span> <span class="fu">summary</span>(rls_log)</span>
+<span id="cb108-2"><a href="regresión-lineal-simple.html#cb108-2" tabindex="-1"></a>co_rls_log <span class="ot">&lt;-</span> <span class="fu">coef</span>(s_rls_log)</span>
+<span id="cb108-3"><a href="regresión-lineal-simple.html#cb108-3" tabindex="-1"></a><span class="fu">confint.default</span>(rls_log)</span></code></pre></div>
+<pre><code>##                         2.5 %    97.5 %
+## (Intercept)         1.1601401 1.2199547
+## log(Peso_caparazon) 0.2831146 0.2992061</code></pre>
+<p><strong>Interpretación:</strong>
+El modelo de regresión logarítmica muestra una relación positiva y estadísticamente significativa entre el peso del caparazón y el número de anillos (p &lt; 0,001). El coeficiente de determinación (R² = 0,5468) indica que el modelo explica el 54,68 % de la variabilidad del número de anillos. Además, el coeficiente de 0,291 indica que un aumento del 1 % en el peso del caparazón se asocia aproximadamente con un aumento del 0,291 % en el número de anillos. Esto representa una mejora en la capacidad explicativa respecto al modelo lineal simple.</p>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="regresión-lineal-simple.html#cb110-1" tabindex="-1"></a>abalone <span class="sc">%&gt;%</span></span>
+<span id="cb110-2"><a href="regresión-lineal-simple.html#cb110-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(.data[[mejor_pred]]), <span class="at">y =</span> <span class="fu">log</span>(Anillos))) <span class="sc">+</span></span>
+<span id="cb110-3"><a href="regresión-lineal-simple.html#cb110-3" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> col_point, <span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb110-4"><a href="regresión-lineal-simple.html#cb110-4" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">color =</span> col_dark) <span class="sc">+</span></span>
+<span id="cb110-5"><a href="regresión-lineal-simple.html#cb110-5" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Modelo transformado (log-log)&quot;</span>,</span>
+<span id="cb110-6"><a href="regresión-lineal-simple.html#cb110-6" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">paste0</span>(<span class="st">&quot;log(&quot;</span>, mejor_pred, <span class="st">&quot;)&quot;</span>), <span class="at">y =</span> <span class="st">&quot;log(Anillos)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb110-7"><a href="regresión-lineal-simple.html#cb110-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rls-log-grafico-1.png" width="864" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretación:</strong>
+El gráfico muestra una relación positiva entre el logaritmo del peso del caparazón y el logaritmo del número de anillos. Se observa que, a medida que aumenta el peso del caparazón, también tiende a aumentar el número de anillos. Los datos presentan una tendencia aproximadamente lineal, aunque existe cierta dispersión alrededor de la recta de regresión.</p>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="regresión-lineal-simple.html#cb111-1" tabindex="-1"></a><span class="fu">graficos_residuos</span>(rls_log, <span class="st">&quot;Diagnóstico RLS transformada (log-log)&quot;</span>)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rls-log-residuales-1.png" width="864" style="display: block; margin: auto;" />
+<strong>Interpretación:</strong>
+Los gráficos muestran una mejora en el comportamiento de los residuos respecto al modelo original; sin embargo, todavía se observa cierta asimetría en su distribución y una dispersión irregular frente a los valores ajustados. Además, los residuos presentan patrones a lo largo del orden de las observaciones, lo que sugiere que persisten problemas de heterocedasticidad y posible dependencia. La transformación logarítmica mejora el ajuste, pero no logra corregir completamente las limitaciones del modelo.</p>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="regresión-lineal-simple.html#cb112-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb112-2"><a href="regresión-lineal-simple.html#cb112-2" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">qqPlot</span>(<span class="fu">residuals</span>(rls_log), <span class="at">main =</span> <span class="st">&quot;QQ de los residuos (log-log)&quot;</span>,</span>
+<span id="cb112-3"><a href="regresión-lineal-simple.html#cb112-3" tabindex="-1"></a>                 <span class="at">xlab =</span> <span class="st">&quot;Cuantiles teóricos&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Residuos&quot;</span>, <span class="at">id =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb112-4"><a href="regresión-lineal-simple.html#cb112-4" tabindex="-1"></a><span class="fu">acf</span>(<span class="fu">residuals</span>(rls_log), <span class="at">main =</span> <span class="st">&quot;Autocorrelación (log-log)&quot;</span>)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rls-log-qq-acf-1.png" width="864" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="regresión-lineal-simple.html#cb113-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
+<p><strong>Interpretación:</strong>
+El gráfico QQ muestra que los residuos se aproximan a la línea de referencia en la parte central, pero presentan desviaciones en los extremos, indicando que la normalidad no se cumple completamente. Por otra parte, el gráfico de autocorrelación evidencia correlaciones positivas significativas en los distintos rezagos, lo que indica dependencia entre los residuos. A pesar de la transformación logarítmica, persisten problemas de normalidad e independencia en el modelo.</p>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="regresión-lineal-simple.html#cb114-1" tabindex="-1"></a>sup_rls_log <span class="ot">&lt;-</span> <span class="fu">pruebas_supuestos</span>(rls_log)</span>
+<span id="cb114-2"><a href="regresión-lineal-simple.html#cb114-2" tabindex="-1"></a>sup_rls_log <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Pruebas de supuestos de la RLS transformada&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:rls-log-supuestos">Table 11.2: </span>Pruebas de supuestos de la RLS transformada</caption>
+<colgroup>
+<col width="20%" />
+<col width="27%" />
+<col width="12%" />
+<col width="8%" />
+<col width="30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Supuesto</th>
+<th align="left">Prueba</th>
+<th align="right">Estadistico</th>
+<th align="right">p_valor</th>
+<th align="left">Conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Normalidad</td>
+<td align="left">Shapiro-Wilk</td>
+<td align="right">0.9592</td>
+<td align="right">0.0000</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Media cero</td>
+<td align="left">t de una muestra (mu = 0)</td>
+<td align="right">0.0000</td>
+<td align="right">1.0000</td>
+<td align="left">Se cumple (no se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Varianza constante</td>
+<td align="left">Breusch-Pagan</td>
+<td align="right">5.1846</td>
+<td align="right">0.0228</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Varianza constante</td>
+<td align="left">ncvTest (car)</td>
+<td align="right">6.8546</td>
+<td align="right">0.0088</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Independencia</td>
+<td align="left">Durbin-Watson</td>
+<td align="right">0.9674</td>
+<td align="right">0.0000</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="regresión-lineal-simple.html#cb115-1" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb115-2"><a href="regresión-lineal-simple.html#cb115-2" tabindex="-1"></a>  <span class="at">Modelo =</span> <span class="fu">c</span>(<span class="st">&quot;Original&quot;</span>, <span class="st">&quot;Log-log&quot;</span>),</span>
+<span id="cb115-3"><a href="regresión-lineal-simple.html#cb115-3" tabindex="-1"></a>  <span class="at">R2 =</span> <span class="fu">c</span>(s_rls<span class="sc">$</span>r.squared, s_rls_log<span class="sc">$</span>r.squared),</span>
+<span id="cb115-4"><a href="regresión-lineal-simple.html#cb115-4" tabindex="-1"></a>  <span class="at">W_Shapiro =</span> <span class="fu">c</span>(sup_rls<span class="sc">$</span>Estadistico[<span class="dv">1</span>], sup_rls_log<span class="sc">$</span>Estadistico[<span class="dv">1</span>]),</span>
+<span id="cb115-5"><a href="regresión-lineal-simple.html#cb115-5" tabindex="-1"></a>  <span class="at">Breusch_Pagan =</span> <span class="fu">c</span>(sup_rls<span class="sc">$</span>Estadistico[<span class="dv">3</span>], sup_rls_log<span class="sc">$</span>Estadistico[<span class="dv">3</span>])</span>
+<span id="cb115-6"><a href="regresión-lineal-simple.html#cb115-6" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Comparación de la RLS antes y después de la transformación&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:rls-log-supuestos">Table 11.2: </span>Comparación de la RLS antes y después de la transformación</caption>
+<thead>
+<tr class="header">
+<th align="left">Modelo</th>
+<th align="right">R2</th>
+<th align="right">W_Shapiro</th>
+<th align="right">Breusch_Pagan</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Original</td>
+<td align="right">0.3936</td>
+<td align="right">0.8926</td>
+<td align="right">124.2477</td>
+</tr>
+<tr class="even">
+<td align="left">Log-log</td>
+<td align="right">0.5468</td>
+<td align="right">0.9592</td>
+<td align="right">5.1846</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+La comparación muestra que el modelo log-log presenta una mejora respecto al original, aumentando el R² de 0,3936 a 0,5468. Además, mejora la normalidad de los residuos (W = 0,9592) y disminuye considerablemente la heterocedasticidad (Breusch-Pagan = 5,1846). Por tanto, la transformación logarítmica permite obtener un modelo con mejor ajuste y un cumplimiento más favorable de los supuestos estadísticos.</p>
+</div>
+<div id="estimación-de-la-respuesta-media-e-intervalo-de-predicción" class="section level2 hasAnchor" number="11.4">
+<h2><span class="header-section-number">11.4</span> Estimación de la respuesta media e intervalo de predicción<a href="regresión-lineal-simple.html#estimaci%C3%B3n-de-la-respuesta-media-e-intervalo-de-predicci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Se estima el número de anillos para un abulón con el valor mediano de Peso_caparazon.</p>
+<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb116-1"><a href="regresión-lineal-simple.html#cb116-1" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">median</span>(abalone[[mejor_pred]])</span>
+<span id="cb116-2"><a href="regresión-lineal-simple.html#cb116-2" tabindex="-1"></a>nuevo <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">data.frame</span>(x0), mejor_pred)</span>
+<span id="cb116-3"><a href="regresión-lineal-simple.html#cb116-3" tabindex="-1"></a></span>
+<span id="cb116-4"><a href="regresión-lineal-simple.html#cb116-4" tabindex="-1"></a>ic_media <span class="ot">&lt;-</span> <span class="fu">predict</span>(rls, nuevo, <span class="at">interval =</span> <span class="st">&quot;confidence&quot;</span>)</span>
+<span id="cb116-5"><a href="regresión-lineal-simple.html#cb116-5" tabindex="-1"></a>ip_nuevo <span class="ot">&lt;-</span> <span class="fu">predict</span>(rls, nuevo, <span class="at">interval =</span> <span class="st">&quot;prediction&quot;</span>)</span>
+<span id="cb116-6"><a href="regresión-lineal-simple.html#cb116-6" tabindex="-1"></a>ic_media_log <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">predict</span>(rls_log, nuevo, <span class="at">interval =</span> <span class="st">&quot;confidence&quot;</span>))</span>
+<span id="cb116-7"><a href="regresión-lineal-simple.html#cb116-7" tabindex="-1"></a>ip_nuevo_log <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">predict</span>(rls_log, nuevo, <span class="at">interval =</span> <span class="st">&quot;prediction&quot;</span>))</span>
+<span id="cb116-8"><a href="regresión-lineal-simple.html#cb116-8" tabindex="-1"></a></span>
+<span id="cb116-9"><a href="regresión-lineal-simple.html#cb116-9" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb116-10"><a href="regresión-lineal-simple.html#cb116-10" tabindex="-1"></a>  <span class="at">Modelo =</span> <span class="fu">c</span>(<span class="st">&quot;Original&quot;</span>, <span class="st">&quot;Original&quot;</span>, <span class="st">&quot;Log-log&quot;</span>, <span class="st">&quot;Log-log&quot;</span>),</span>
+<span id="cb116-11"><a href="regresión-lineal-simple.html#cb116-11" tabindex="-1"></a>  <span class="at">Intervalo =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;IC 95 % para E(Y|x0)&quot;</span>, <span class="st">&quot;IP 95 % para un nuevo Y0&quot;</span>), <span class="dv">2</span>),</span>
+<span id="cb116-12"><a href="regresión-lineal-simple.html#cb116-12" tabindex="-1"></a>  <span class="at">Estimacion =</span> <span class="fu">c</span>(ic_media[<span class="dv">1</span>], ip_nuevo[<span class="dv">1</span>], ic_media_log[<span class="dv">1</span>], ip_nuevo_log[<span class="dv">1</span>]),</span>
+<span id="cb116-13"><a href="regresión-lineal-simple.html#cb116-13" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">c</span>(ic_media[<span class="dv">2</span>], ip_nuevo[<span class="dv">2</span>], ic_media_log[<span class="dv">2</span>], ip_nuevo_log[<span class="dv">2</span>]),</span>
+<span id="cb116-14"><a href="regresión-lineal-simple.html#cb116-14" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">c</span>(ic_media[<span class="dv">3</span>], ip_nuevo[<span class="dv">3</span>], ic_media_log[<span class="dv">3</span>], ip_nuevo_log[<span class="dv">3</span>])</span>
+<span id="cb116-15"><a href="regresión-lineal-simple.html#cb116-15" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="fu">paste0</span>(<span class="st">&quot;Predicciones para &quot;</span>, mejor_pred, <span class="st">&quot; = &quot;</span>, <span class="fu">fmt</span>(x0, <span class="dv">2</span>)), <span class="at">d =</span> <span class="dv">2</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:rls-prediccion">Table 11.3: </span>Predicciones para Peso_caparazon = 46.80</caption>
+<thead>
+<tr class="header">
+<th align="left">Modelo</th>
+<th align="left">Intervalo</th>
+<th align="right">Estimacion</th>
+<th align="right">Inferior</th>
+<th align="right">Superior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Original</td>
+<td align="left">IC 95 % para E(Y|x0)</td>
+<td align="right">9.87</td>
+<td align="right">9.79</td>
+<td align="right">9.94</td>
+</tr>
+<tr class="even">
+<td align="left">Original</td>
+<td align="left">IP 95 % para un nuevo Y0</td>
+<td align="right">9.87</td>
+<td align="right">4.94</td>
+<td align="right">14.79</td>
+</tr>
+<tr class="odd">
+<td align="left">Log-log</td>
+<td align="left">IC 95 % para E(Y|x0)</td>
+<td align="right">10.07</td>
+<td align="right">10.00</td>
+<td align="right">10.14</td>
+</tr>
+<tr class="even">
+<td align="left">Log-log</td>
+<td align="left">IP 95 % para un nuevo Y0</td>
+<td align="right">10.07</td>
+<td align="right">6.61</td>
+<td align="right">15.35</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+Para un peso del caparazón de 46,80, el modelo original estima 9,87 anillos, mientras que el modelo log-log estima 10,07. Ambos modelos presentan predicciones similares; sin embargo, los intervalos de confianza son más estrechos que los intervalos de predicción, ya que estos últimos consideran la variabilidad de una nueva observación.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="regresión-lineal-múltiple.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/rstudio/bookdown-demo/edit/master/index.Rmd",
+    "text": "Edit"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["bookdown-demo.pdf", "bookdown-demo.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

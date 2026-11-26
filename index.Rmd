@@ -1,6 +1,6 @@
 --- 
 title: "Análisis estadístico de la base de datos Abalone"
-author: "Mariana Gutiérrez y Daniela Idarraga"
+author: "Mariana Gutiérrez - Daniela Idarraga"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook

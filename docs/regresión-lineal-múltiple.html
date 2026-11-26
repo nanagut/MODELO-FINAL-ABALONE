@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Capitulo 12 Regresión lineal múltiple | Análisis estadístico de la base de datos Abalone</title>
+  <meta name="description" content="Capitulo 12 Regresión lineal múltiple | Análisis estadístico de la base de datos Abalone" />
+  <meta name="generator" content="bookdown 0.48 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Capitulo 12 Regresión lineal múltiple | Análisis estadístico de la base de datos Abalone" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Capitulo 12 Regresión lineal múltiple | Análisis estadístico de la base de datos Abalone" />
+  
+  
+  
+
+<meta name="author" content="Mariana Gutiérrez - Daniela Idarraga" />
+
+
+<meta name="date" content="2026-11-25" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="regresión-lineal-simple.html"/>
+<link rel="next" href="conclusiones.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Librerías y funciones auxiliares</a></li>
+<li class="chapter" data-level="2" data-path="introducción.html"><a href="introducción.html"><i class="fa fa-check"></i><b>2</b> Introducción</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="introducción.html"><a href="introducción.html#contexto-de-los-datos"><i class="fa fa-check"></i><b>2.1</b> Contexto de los datos</a></li>
+<li class="chapter" data-level="2.2" data-path="introducción.html"><a href="introducción.html#objetivo"><i class="fa fa-check"></i><b>2.2</b> Objetivo</a></li>
+<li class="chapter" data-level="2.3" data-path="introducción.html"><a href="introducción.html#diccionario-de-variables"><i class="fa fa-check"></i><b>2.3</b> Diccionario de variables</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html"><i class="fa fa-check"></i><b>3</b> Extracción, transformación y carga (ETL)</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#carga-de-los-datos"><i class="fa fa-check"></i><b>3.1</b> Carga de los datos</a></li>
+<li class="chapter" data-level="3.2" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#exploraci%C3%B3n-inicial"><i class="fa fa-check"></i><b>3.2</b> Exploración inicial</a></li>
+<li class="chapter" data-level="3.3" data-path="extracción-transformación-y-carga-etl.html"><a href="extracción-transformación-y-carga-etl.html#cambio-de-nombres-unidades-y-tipo-de-variable"><i class="fa fa-check"></i><b>3.3</b> Cambio de nombres, unidades y tipo de variable</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html"><i class="fa fa-check"></i><b>4</b> Calidad de los datos</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#valores-faltantes"><i class="fa fa-check"></i><b>4.1</b> Valores faltantes</a></li>
+<li class="chapter" data-level="4.2" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#valores-imposibles"><i class="fa fa-check"></i><b>4.2</b> Valores imposibles</a></li>
+<li class="chapter" data-level="4.3" data-path="calidad-de-los-datos.html"><a href="calidad-de-los-datos.html#depuraci%C3%B3n"><i class="fa fa-check"></i><b>4.3</b> Depuración</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><i class="fa fa-check"></i><b>5</b> Análisis exploratorio de la variable respuesta (Anillos)</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html#medidas-descriptivas"><i class="fa fa-check"></i><b>5.1</b> Medidas descriptivas</a></li>
+<li class="chapter" data-level="5.2" data-path="análisis-exploratorio-de-la-variable-respuesta-anillos.html"><a href="análisis-exploratorio-de-la-variable-respuesta-anillos.html#pruebas-de-normalidad"><i class="fa fa-check"></i><b>5.2</b> Pruebas de normalidad</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html"><i class="fa fa-check"></i><b>6</b> Análisis de las variables independientes</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html#variables-cuantitativas"><i class="fa fa-check"></i><b>6.1</b> Variables cuantitativas</a></li>
+<li class="chapter" data-level="6.2" data-path="análisis-de-las-variables-independientes.html"><a href="análisis-de-las-variables-independientes.html#variable-categ%C3%B3rica-sexo"><i class="fa fa-check"></i><b>6.2</b> Variable categórica Sexo</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html"><i class="fa fa-check"></i><b>7</b> Análisis exploratorio bivariado</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html#variables-cuantitativas-vs.-anillos"><i class="fa fa-check"></i><b>7.1</b> Variables cuantitativas vs. Anillos</a></li>
+<li class="chapter" data-level="7.2" data-path="análisis-exploratorio-bivariado.html"><a href="análisis-exploratorio-bivariado.html#sexo-vs.-anillos"><i class="fa fa-check"></i><b>7.2</b> Sexo vs. Anillos</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="correlación-lineal.html"><a href="correlación-lineal.html"><i class="fa fa-check"></i><b>8</b> Correlación lineal</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="correlación-lineal.html"><a href="correlación-lineal.html#matriz-de-dispersi%C3%B3n-y-correlaciones"><i class="fa fa-check"></i><b>8.1</b> Matriz de dispersión y correlaciones</a></li>
+<li class="chapter" data-level="8.2" data-path="correlación-lineal.html"><a href="correlación-lineal.html#correlaci%C3%B3n-de-cada-variable-con-anillos-pearson-spearman-y-kendall"><i class="fa fa-check"></i><b>8.2</b> Correlación de cada variable con Anillos (Pearson, Spearman y Kendall)</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><i class="fa fa-check"></i><b>9</b> Pruebas paramétricas y no paramétricas: Anillos según Sexo</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#comparaci%C3%B3n-de-dos-grupos-independientes-hembras-vs.-machos"><i class="fa fa-check"></i><b>9.1</b> Comparación de dos grupos independientes: Hembras vs. Machos</a>
+<ul>
+<li class="chapter" data-level="9.1.1" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#verificaci%C3%B3n-de-supuestos"><i class="fa fa-check"></i><b>9.1.1</b> Verificación de supuestos</a></li>
+<li class="chapter" data-level="9.1.2" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#prueba-t-para-muestras-independientes"><i class="fa fa-check"></i><b>9.1.2</b> Prueba t para muestras independientes</a></li>
+<li class="chapter" data-level="9.1.3" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#prueba-de-mann-whitney-wilcoxon-de-rangos"><i class="fa fa-check"></i><b>9.1.3</b> Prueba de Mann-Whitney (Wilcoxon de rangos)</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#anova-de-un-factor-comparaci%C3%B3n-de-los-tres-grupos"><i class="fa fa-check"></i><b>9.2</b> ANOVA de un factor: comparación de los tres grupos</a></li>
+<li class="chapter" data-level="9.3" data-path="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html"><a href="pruebas-paramétricas-y-no-paramétricas-anillos-según-sexo.html#kruskal-wallis-y-comparaciones-post-hoc"><i class="fa fa-check"></i><b>9.3</b> Kruskal-Wallis y comparaciones post hoc</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"><a href="tabla-de-contingencia-sexo-vs.-grupo-de-edad.html"><i class="fa fa-check"></i><b>10</b> Tabla de contingencia: Sexo vs. grupo de edad</a></li>
+<li class="chapter" data-level="11" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html"><i class="fa fa-check"></i><b>11</b> Regresión lineal simple</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#ajuste-del-modelo"><i class="fa fa-check"></i><b>11.1</b> Ajuste del modelo</a></li>
+<li class="chapter" data-level="11.2" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#an%C3%A1lisis-de-residuales-y-validaci%C3%B3n-de-supuestos"><i class="fa fa-check"></i><b>11.2</b> Análisis de residuales y validación de supuestos</a></li>
+<li class="chapter" data-level="11.3" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#transformaci%C3%B3n-para-mejorar-el-ajuste"><i class="fa fa-check"></i><b>11.3</b> Transformación para mejorar el ajuste</a></li>
+<li class="chapter" data-level="11.4" data-path="regresión-lineal-simple.html"><a href="regresión-lineal-simple.html#estimaci%C3%B3n-de-la-respuesta-media-e-intervalo-de-predicci%C3%B3n"><i class="fa fa-check"></i><b>11.4</b> Estimación de la respuesta media e intervalo de predicción</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html"><i class="fa fa-check"></i><b>12</b> Regresión lineal múltiple</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#variables-dummy-para-sexo"><i class="fa fa-check"></i><b>12.1</b> Variables dummy para Sexo</a></li>
+<li class="chapter" data-level="12.2" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#modelo-completo"><i class="fa fa-check"></i><b>12.2</b> Modelo completo</a></li>
+<li class="chapter" data-level="12.3" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#an%C3%A1lisis-de-multicolinealidad"><i class="fa fa-check"></i><b>12.3</b> Análisis de multicolinealidad</a></li>
+<li class="chapter" data-level="12.4" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#selecci%C3%B3n-de-variables"><i class="fa fa-check"></i><b>12.4</b> Selección de variables</a>
+<ul>
+<li class="chapter" data-level="12.4.1" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#m%C3%A9todo-de-todas-las-regresiones-posibles"><i class="fa fa-check"></i><b>12.4.1</b> Método de todas las regresiones posibles</a></li>
+<li class="chapter" data-level="12.4.2" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#selecci%C3%B3n-secuencial-stepaic"><i class="fa fa-check"></i><b>12.4.2</b> Selección secuencial (stepAIC)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#diagn%C3%B3stico-y-transformaci%C3%B3n-del-modelo-seleccionado"><i class="fa fa-check"></i><b>12.5</b> Diagnóstico y transformación del modelo seleccionado</a></li>
+<li class="chapter" data-level="12.6" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#identificaci%C3%B3n-de-at%C3%ADpicos-y-observaciones-influyentes"><i class="fa fa-check"></i><b>12.6</b> Identificación de atípicos y observaciones influyentes</a></li>
+<li class="chapter" data-level="12.7" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#modelo-final-inferencia-e-interpretaci%C3%B3n"><i class="fa fa-check"></i><b>12.7</b> Modelo final: inferencia e interpretación</a></li>
+<li class="chapter" data-level="12.8" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#inferencia-para-la-respuesta-intervalos-de-confianza-y-predicci%C3%B3n"><i class="fa fa-check"></i><b>12.8</b> Inferencia para la respuesta: intervalos de confianza y predicción</a></li>
+<li class="chapter" data-level="12.9" data-path="regresión-lineal-múltiple.html"><a href="regresión-lineal-múltiple.html#comparaci%C3%B3n-entre-los-modelos"><i class="fa fa-check"></i><b>12.9</b> Comparación entre los modelos</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="conclusiones.html"><a href="conclusiones.html"><i class="fa fa-check"></i><b>13</b> Conclusiones</a></li>
+<li class="chapter" data-level="14" data-path="referencias.html"><a href="referencias.html"><i class="fa fa-check"></i><b>14</b> Referencias</a></li>
+<li class="chapter" data-level="15" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>15</b> Introduction</a></li>
+<li class="chapter" data-level="16" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>16</b> Literature</a></li>
+<li class="chapter" data-level="17" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>17</b> Methods</a>
+<ul>
+<li class="chapter" data-level="17.1" data-path="methods.html"><a href="methods.html#math-example"><i class="fa fa-check"></i><b>17.1</b> math example</a></li>
+</ul></li>
+<li class="chapter" data-level="18" data-path="applications.html"><a href="applications.html"><i class="fa fa-check"></i><b>18</b> Applications</a>
+<ul>
+<li class="chapter" data-level="18.1" data-path="applications.html"><a href="applications.html#example-one"><i class="fa fa-check"></i><b>18.1</b> Example one</a></li>
+<li class="chapter" data-level="18.2" data-path="applications.html"><a href="applications.html#example-two"><i class="fa fa-check"></i><b>18.2</b> Example two</a></li>
+</ul></li>
+<li class="chapter" data-level="19" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>19</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Análisis estadístico de la base de datos Abalone</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="regresión-lineal-múltiple" class="section level1 hasAnchor" number="12">
+<h1><span class="header-section-number">Capitulo 12</span> Regresión lineal múltiple<a href="regresión-lineal-múltiple.html#regresi%C3%B3n-lineal-m%C3%BAltiple" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="variables-dummy-para-sexo" class="section level2 hasAnchor" number="12.1">
+<h2><span class="header-section-number">12.1</span> Variables dummy para Sexo<a href="regresión-lineal-múltiple.html#variables-dummy-para-sexo" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Sexo entra al modelo como <strong>dos variables dummy</strong> (Macho e Infante), y <em>Hembra</em> es la categoría de referencia:</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="regresión-lineal-múltiple.html#cb117-1" tabindex="-1"></a><span class="fu">contrasts</span>(abalone<span class="sc">$</span>Sexo)</span></code></pre></div>
+<pre><code>##         Macho Infante
+## Hembra      0       0
+## Macho       1       0
+## Infante     0       1</code></pre>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="regresión-lineal-múltiple.html#cb119-1" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">model.matrix</span>(<span class="sc">~</span> Sexo, <span class="at">data =</span> abalone))</span></code></pre></div>
+<pre><code>##   (Intercept) SexoMacho SexoInfante
+## 1           1         1           0
+## 2           1         1           0
+## 3           1         0           0
+## 4           1         1           0
+## 5           1         0           1
+## 6           1         0           1</code></pre>
+</div>
+<div id="modelo-completo" class="section level2 hasAnchor" number="12.2">
+<h2><span class="header-section-number">12.2</span> Modelo completo<a href="regresión-lineal-múltiple.html#modelo-completo" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><span class="math display">\[\text{Anillos}_i = \beta_0 + \beta_1 D_{Macho,i} + \beta_2 D_{Infante,i} + \beta_3 \text{Largo}_i + \dots + \beta_9 \text{Peso_caparazon}_i + \varepsilon_i\]</span></p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="regresión-lineal-múltiple.html#cb121-1" tabindex="-1"></a>f_completo <span class="ot">&lt;-</span> <span class="fu">reformulate</span>(<span class="fu">c</span>(<span class="st">&quot;Sexo&quot;</span>, predictores), <span class="at">response =</span> <span class="st">&quot;Anillos&quot;</span>)</span>
+<span id="cb121-2"><a href="regresión-lineal-múltiple.html#cb121-2" tabindex="-1"></a>rlm_completo <span class="ot">&lt;-</span> <span class="fu">eval</span>(<span class="fu">bquote</span>(<span class="fu">lm</span>(.(f_completo), <span class="at">data =</span> abalone)))</span>
+<span id="cb121-3"><a href="regresión-lineal-múltiple.html#cb121-3" tabindex="-1"></a><span class="fu">summary</span>(rlm_completo)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = Anillos ~ Sexo + Largo + Diametro + Altura + Peso + 
+##     Peso_carne + Peso_visceras + Peso_caparazon, data = abalone)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.4324  -1.3010  -0.3302   0.8729  13.8132 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     3.8072622  0.2919431  13.041  &lt; 2e-16 ***
+## SexoMacho       0.0651678  0.0831324   0.784    0.433    
+## SexoInfante    -0.8229306  0.1021361  -8.057 1.01e-15 ***
+## Largo          -0.0009994  0.0090247  -0.111    0.912    
+## Diametro        0.0551387  0.0111112   4.962 7.24e-07 ***
+## Altura          0.0538320  0.0077039   6.988 3.24e-12 ***
+## Peso            0.0484208  0.0037351  12.964  &lt; 2e-16 ***
+## Peso_carne     -0.1039597  0.0042314 -24.568  &lt; 2e-16 ***
+## Peso_visceras  -0.0549921  0.0064858  -8.479  &lt; 2e-16 ***
+## Peso_caparazon  0.0397579  0.0057729   6.887 6.56e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.188 on 4161 degrees of freedom
+## Multiple R-squared:  0.5402, Adjusted R-squared:  0.5392 
+## F-statistic: 543.1 on 9 and 4161 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="regresión-lineal-múltiple.html#cb123-1" tabindex="-1"></a>s_rlm_c <span class="ot">&lt;-</span> <span class="fu">summary</span>(rlm_completo)</span>
+<span id="cb123-2"><a href="regresión-lineal-múltiple.html#cb123-2" tabindex="-1"></a><span class="fu">confint.default</span>(rlm_completo)</span></code></pre></div>
+<pre><code>##                      2.5 %      97.5 %
+## (Intercept)     3.23506419  4.37946017
+## SexoMacho      -0.09776870  0.22810423
+## SexoInfante    -1.02311375 -0.62274749
+## Largo          -0.01868743  0.01668859
+## Diametro        0.03336124  0.07691623
+## Altura          0.03873266  0.06893129
+## Peso            0.04110022  0.05574139
+## Peso_carne     -0.11225319 -0.09566627
+## Peso_visceras  -0.06770405 -0.04228021
+## Peso_caparazon  0.02844311  0.05107263</code></pre>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="regresión-lineal-múltiple.html#cb125-1" tabindex="-1"></a><span class="fu">anova</span>(rlm_completo)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: Anillos
+##                  Df  Sum Sq Mean Sq   F value    Pr(&gt;F)    
+## Sexo              2  8317.8  4158.9  868.6244 &lt; 2.2e-16 ***
+## Largo             1  6126.7  6126.7 1279.6025 &lt; 2.2e-16 ***
+## Diametro          1   777.2   777.2  162.3316 &lt; 2.2e-16 ***
+## Altura            1   753.9   753.9  157.4657 &lt; 2.2e-16 ***
+## Peso              1     2.9     2.9    0.6058    0.4364    
+## Peso_carne        1  6560.3  6560.3 1370.1698 &lt; 2.2e-16 ***
+## Peso_visceras     1   636.9   636.9  133.0144 &lt; 2.2e-16 ***
+## Peso_caparazon    1   227.1   227.1   47.4298 6.556e-12 ***
+## Residuals      4161 19922.6     4.8                        
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><strong>INTERPRETACIÓN</strong>
+El modelo de regresión lineal múltiple es estadísticamente significativo (p &lt; 0,001) y explica el 54,02 % de la variabilidad del número de anillos (R² = 0,5402). Las variables sexo, diámetro, altura, peso, peso de carne, peso de vísceras y peso del caparazón presentan asociaciones significativas con el número de anillos, mientras que el largo y la categoría macho no muestran efectos significativos en los coeficientes del modelo. Se destaca que los infantes presentan un menor número de anillos respecto a las hembras y que el peso de carne tiene una relación negativa con esta variable. En general, el modelo permite explicar mejor el número de anillos al considerar simultáneamente las características físicas y el sexo de los abulones.</p>
+</div>
+<div id="análisis-de-multicolinealidad" class="section level2 hasAnchor" number="12.3">
+<h2><span class="header-section-number">12.3</span> Análisis de multicolinealidad<a href="regresión-lineal-múltiple.html#an%C3%A1lisis-de-multicolinealidad" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="regresión-lineal-múltiple.html#cb127-1" tabindex="-1"></a><span class="co"># VIF (car)</span></span>
+<span id="cb127-2"><a href="regresión-lineal-múltiple.html#cb127-2" tabindex="-1"></a>tabla_vif <span class="ot">&lt;-</span> <span class="cf">function</span>(modelo) {</span>
+<span id="cb127-3"><a href="regresión-lineal-múltiple.html#cb127-3" tabindex="-1"></a>  v <span class="ot">&lt;-</span> <span class="fu">vif</span>(modelo)</span>
+<span id="cb127-4"><a href="regresión-lineal-múltiple.html#cb127-4" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.matrix</span>(v)) {</span>
+<span id="cb127-5"><a href="regresión-lineal-múltiple.html#cb127-5" tabindex="-1"></a>    <span class="co"># Con factores, car::vif devuelve el GVIF; GVIF^(1/(2gl)) al cuadrado es comparable con el VIF</span></span>
+<span id="cb127-6"><a href="regresión-lineal-múltiple.html#cb127-6" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">Variable =</span> <span class="fu">rownames</span>(v), <span class="at">VIF =</span> v[, <span class="st">&quot;GVIF^(1/(2*Df))&quot;</span>]<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb127-7"><a href="regresión-lineal-múltiple.html#cb127-7" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb127-8"><a href="regresión-lineal-múltiple.html#cb127-8" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">Variable =</span> <span class="fu">names</span>(v), <span class="at">VIF =</span> <span class="fu">unname</span>(v))</span>
+<span id="cb127-9"><a href="regresión-lineal-múltiple.html#cb127-9" tabindex="-1"></a>  }</span>
+<span id="cb127-10"><a href="regresión-lineal-múltiple.html#cb127-10" tabindex="-1"></a>}</span>
+<span id="cb127-11"><a href="regresión-lineal-múltiple.html#cb127-11" tabindex="-1"></a></span>
+<span id="cb127-12"><a href="regresión-lineal-múltiple.html#cb127-12" tabindex="-1"></a>vif_completo <span class="ot">&lt;-</span> <span class="fu">tabla_vif</span>(rlm_completo) <span class="sc">%&gt;%</span></span>
+<span id="cb127-13"><a href="regresión-lineal-múltiple.html#cb127-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Problema =</span> <span class="fu">ifelse</span>(VIF <span class="sc">&gt;</span> <span class="dv">10</span>, <span class="st">&quot;Multicolinealidad severa&quot;</span>,</span>
+<span id="cb127-14"><a href="regresión-lineal-múltiple.html#cb127-14" tabindex="-1"></a>                    <span class="fu">ifelse</span>(VIF <span class="sc">&gt;</span> <span class="dv">5</span>, <span class="st">&quot;Moderada&quot;</span>, <span class="st">&quot;Aceptable&quot;</span>)))</span>
+<span id="cb127-15"><a href="regresión-lineal-múltiple.html#cb127-15" tabindex="-1"></a>vif_completo <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;VIF del modelo completo&quot;</span>, <span class="at">d =</span> <span class="dv">2</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:multicolinealidad">Table 12.1: </span>VIF del modelo completo</caption>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">VIF</th>
+<th align="left">Problema</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sexo</td>
+<td align="right">1.24</td>
+<td align="left">Aceptable</td>
+</tr>
+<tr class="even">
+<td align="left">Largo</td>
+<td align="right">40.85</td>
+<td align="left">Multicolinealidad severa</td>
+</tr>
+<tr class="odd">
+<td align="left">Diametro</td>
+<td align="right">42.28</td>
+<td align="left">Multicolinealidad severa</td>
+</tr>
+<tr class="even">
+<td align="left">Altura</td>
+<td align="right">3.60</td>
+<td align="left">Aceptable</td>
+</tr>
+<tr class="odd">
+<td align="left">Peso</td>
+<td align="right">116.74</td>
+<td align="left">Multicolinealidad severa</td>
+</tr>
+<tr class="even">
+<td align="left">Peso_carne</td>
+<td align="right">30.75</td>
+<td align="left">Multicolinealidad severa</td>
+</tr>
+<tr class="odd">
+<td align="left">Peso_visceras</td>
+<td align="right">17.59</td>
+<td align="left">Multicolinealidad severa</td>
+</tr>
+<tr class="even">
+<td align="left">Peso_caparazon</td>
+<td align="right">22.49</td>
+<td align="left">Multicolinealidad severa</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="regresión-lineal-múltiple.html#cb128-1" tabindex="-1"></a><span class="co"># Número de condición</span></span>
+<span id="cb128-2"><a href="regresión-lineal-múltiple.html#cb128-2" tabindex="-1"></a>kappa_completo <span class="ot">&lt;-</span> <span class="fu">kappa</span>(rlm_completo, <span class="at">exact =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb128-3"><a href="regresión-lineal-múltiple.html#cb128-3" tabindex="-1"></a>kappa_completo</span></code></pre></div>
+<pre><code>## [1] 2259.169</code></pre>
+<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb130-1"><a href="regresión-lineal-múltiple.html#cb130-1" tabindex="-1"></a><span class="co"># Diagnóstico con mctest (solo predictores numéricos)</span></span>
+<span id="cb130-2"><a href="regresión-lineal-múltiple.html#cb130-2" tabindex="-1"></a>rlm_num <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">reformulate</span>(predictores, <span class="st">&quot;Anillos&quot;</span>), <span class="at">data =</span> abalone)</span>
+<span id="cb130-3"><a href="regresión-lineal-múltiple.html#cb130-3" tabindex="-1"></a><span class="fu">mctest</span>(rlm_num, <span class="at">type =</span> <span class="st">&quot;b&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## omcdiag(mod = mod, Inter = Inter, detr = detr, red = red, conf = conf, 
+##     theil = theil, cn = cn)
+## 
+## 
+## Overall Multicollinearity Diagnostics
+## 
+##                        MC Results detection
+## Determinant |X&#39;X|:         0.0000         1
+## Farrar Chi-Square:     64952.2298         1
+## Red Indicator:             0.8938         1
+## Sum of Lambda Inverse:   273.0993         1
+## Theil&#39;s Method:            3.3499         1
+## Condition Number:        106.5749         1
+## 
+## 1 --&gt; COLLINEARITY is detected by the test 
+## 0 --&gt; COLLINEARITY is not detected by the test
+## 
+## 
+## ===================================
+## 
+## Call:
+## imcdiag(mod = mod, method = method, corr = FALSE, vif = vif, 
+##     tol = tol, conf = conf, cvif = cvif, ind1 = ind1, ind2 = ind2, 
+##     leamer = leamer, all = all)
+## 
+## 
+## All Individual Multicollinearity Diagnostics Result
+## 
+##                     VIF    TOL        Wi       Fi Leamer     CVIF Klein  IND1
+## Largo           40.6759 0.0246 27535.050 33050.00 0.1568 -17.9958     1 0e+00
+## Diametro        41.7474 0.0240 28278.716 33942.61 0.1548 -18.4699     1 0e+00
+## Altura           3.5749 0.2797  1787.012  2144.93 0.5289  -1.5816     1 4e-04
+## Peso           116.5802 0.0086 80212.661 96278.31 0.0926 -51.5775     1 0e+00
+## Peso_carne      30.5436 0.0327 20503.286 24609.85 0.1809 -13.5131     1 0e+00
+## Peso_visceras   17.4944 0.0572 11447.146 13739.87 0.2391  -7.7399     1 1e-04
+## Peso_caparazon  22.4827 0.0445 14909.020 17895.12 0.2109  -9.9468     1 1e-04
+##                  IND2
+## Largo          1.0458
+## Diametro       1.0465
+## Altura         0.7723
+## Peso           1.0630
+## Peso_carne     1.0371
+## Peso_visceras  1.0109
+## Peso_caparazon 1.0245
+## 
+## 1 --&gt; COLLINEARITY is detected by the test 
+## 0 --&gt; COLLINEARITY is not detected by the test
+## 
+## Largo , coefficient(s) are non-significant may be due to multicollinearity
+## 
+## R-square of y on all x: 0.5298 
+## 
+## * use method argument to check which regressors may be the reason of collinearity
+## ===================================</code></pre>
+<p><strong>Interpretación:</strong>
+Los resultados evidencian problemas importantes de multicolinealidad entre las variables explicativas, especialmente en peso (VIF = 116,58), diámetro (VIF = 41,75) y largo (VIF = 40,68). Esto indica una alta correlación entre algunas características físicas de los abulones, lo que puede afectar la estabilidad y precisión de los coeficientes del modelo. Además, el largo presenta un coeficiente no significativo posiblemente debido a esta multicolinealidad. Por lo tanto, es necesario considerar la selección o reducción de variables para mejorar el modelo.</p>
+<div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="regresión-lineal-múltiple.html#cb132-1" tabindex="-1"></a><span class="co"># Se elimina de a una la variable con mayor VIF hasta que todas tengan VIF &lt;= 10</span></span>
+<span id="cb132-2"><a href="regresión-lineal-múltiple.html#cb132-2" tabindex="-1"></a>vars_vif <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Sexo&quot;</span>, predictores)</span>
+<span id="cb132-3"><a href="regresión-lineal-múltiple.html#cb132-3" tabindex="-1"></a>eliminadas_vif <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb132-4"><a href="regresión-lineal-múltiple.html#cb132-4" tabindex="-1"></a><span class="cf">repeat</span> {</span>
+<span id="cb132-5"><a href="regresión-lineal-múltiple.html#cb132-5" tabindex="-1"></a>  m_tmp <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">reformulate</span>(vars_vif, <span class="st">&quot;Anillos&quot;</span>), <span class="at">data =</span> abalone)</span>
+<span id="cb132-6"><a href="regresión-lineal-múltiple.html#cb132-6" tabindex="-1"></a>  tv <span class="ot">&lt;-</span> <span class="fu">tabla_vif</span>(m_tmp)</span>
+<span id="cb132-7"><a href="regresión-lineal-múltiple.html#cb132-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">max</span>(tv<span class="sc">$</span>VIF) <span class="sc">&lt;=</span> <span class="dv">10</span>) <span class="cf">break</span></span>
+<span id="cb132-8"><a href="regresión-lineal-múltiple.html#cb132-8" tabindex="-1"></a>  peor <span class="ot">&lt;-</span> tv<span class="sc">$</span>Variable[<span class="fu">which.max</span>(tv<span class="sc">$</span>VIF)]</span>
+<span id="cb132-9"><a href="regresión-lineal-múltiple.html#cb132-9" tabindex="-1"></a>  eliminadas_vif <span class="ot">&lt;-</span> <span class="fu">c</span>(eliminadas_vif, peor)</span>
+<span id="cb132-10"><a href="regresión-lineal-múltiple.html#cb132-10" tabindex="-1"></a>  vars_vif <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(vars_vif, peor)</span>
+<span id="cb132-11"><a href="regresión-lineal-múltiple.html#cb132-11" tabindex="-1"></a>}</span>
+<span id="cb132-12"><a href="regresión-lineal-múltiple.html#cb132-12" tabindex="-1"></a>eliminadas_vif</span></code></pre></div>
+<pre><code>## [1] &quot;Peso&quot;          &quot;Diametro&quot;      &quot;Peso_visceras&quot;</code></pre>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="regresión-lineal-múltiple.html#cb134-1" tabindex="-1"></a>vars_vif</span></code></pre></div>
+<pre><code>## [1] &quot;Sexo&quot;           &quot;Largo&quot;          &quot;Altura&quot;         &quot;Peso_carne&quot;    
+## [5] &quot;Peso_caparazon&quot;</code></pre>
+<div class="sourceCode" id="cb136"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb136-1"><a href="regresión-lineal-múltiple.html#cb136-1" tabindex="-1"></a>f_vif <span class="ot">&lt;-</span> <span class="fu">reformulate</span>(vars_vif, <span class="st">&quot;Anillos&quot;</span>)</span>
+<span id="cb136-2"><a href="regresión-lineal-múltiple.html#cb136-2" tabindex="-1"></a>rlm_vif <span class="ot">&lt;-</span> <span class="fu">eval</span>(<span class="fu">bquote</span>(<span class="fu">lm</span>(.(f_vif), <span class="at">data =</span> abalone)))</span>
+<span id="cb136-3"><a href="regresión-lineal-múltiple.html#cb136-3" tabindex="-1"></a><span class="fu">tabla_vif</span>(rlm_vif) <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;VIF del modelo depurado&quot;</span>, <span class="at">d =</span> <span class="dv">2</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:vif-iterativo">Table 12.2: </span>VIF del modelo depurado</caption>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">VIF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sexo</td>
+<td align="right">1.22</td>
+</tr>
+<tr class="even">
+<td align="left">Largo</td>
+<td align="right">7.88</td>
+</tr>
+<tr class="odd">
+<td align="left">Altura</td>
+<td align="right">3.54</td>
+</tr>
+<tr class="even">
+<td align="left">Peso_carne</td>
+<td align="right">6.25</td>
+</tr>
+<tr class="odd">
+<td align="left">Peso_caparazon</td>
+<td align="right">6.74</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="regresión-lineal-múltiple.html#cb137-1" tabindex="-1"></a><span class="fu">kappa</span>(rlm_vif, <span class="at">exact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## [1] 1280.604</code></pre>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="regresión-lineal-múltiple.html#cb139-1" tabindex="-1"></a><span class="fu">summary</span>(rlm_vif)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = Anillos ~ Sexo + Largo + Altura + Peso_carne + Peso_caparazon, 
+##     data = abalone)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -11.3845  -1.3401  -0.3560   0.8547  16.1167 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     3.854882   0.295813  13.031  &lt; 2e-16 ***
+## SexoMacho       0.046559   0.084864   0.549    0.583    
+## SexoInfante    -0.918970   0.103021  -8.920  &lt; 2e-16 ***
+## Largo           0.038617   0.004054   9.527  &lt; 2e-16 ***
+## Altura          0.058310   0.007820   7.456 1.08e-13 ***
+## Peso_carne     -0.058864   0.001951 -30.174  &lt; 2e-16 ***
+## Peso_caparazon  0.102846   0.003232  31.819  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.238 on 4164 degrees of freedom
+## Multiple R-squared:  0.5185, Adjusted R-squared:  0.5179 
+## F-statistic: 747.5 on 6 and 4164 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="regresión-lineal-múltiple.html#cb141-1" tabindex="-1"></a><span class="co"># Prueba F para modelos anidados: ¿las variables eliminadas aportan algo?</span></span>
+<span id="cb141-2"><a href="regresión-lineal-múltiple.html#cb141-2" tabindex="-1"></a><span class="fu">anova</span>(rlm_vif, rlm_completo)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: Anillos ~ Sexo + Largo + Altura + Peso_carne + Peso_caparazon
+## Model 2: Anillos ~ Sexo + Largo + Diametro + Altura + Peso + Peso_carne + 
+##     Peso_visceras + Peso_caparazon
+##   Res.Df   RSS Df Sum of Sq      F    Pr(&gt;F)    
+## 1   4164 20859                                  
+## 2   4161 19923  3    936.53 65.201 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb143-1"><a href="regresión-lineal-múltiple.html#cb143-1" tabindex="-1"></a>anidado_vif <span class="ot">&lt;-</span> <span class="fu">anova</span>(rlm_vif, rlm_completo)</span></code></pre></div>
+<p><strong>INTERPRETACIÓN</strong>
+Los resultados muestran una reducción de la multicolinealidad en el modelo depurado. Sexo y Altura presentan valores VIF bajos, mientras que Largo, Peso_carne y Peso_caparazon tienen valores moderadamente elevados. Sin embargo, todos los VIF son inferiores a 10, por lo que no se evidencia multicolinealidad severa.</p>
+</div>
+<div id="selección-de-variables" class="section level2 hasAnchor" number="12.4">
+<h2><span class="header-section-number">12.4</span> Selección de variables<a href="regresión-lineal-múltiple.html#selecci%C3%B3n-de-variables" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="método-de-todas-las-regresiones-posibles" class="section level3 hasAnchor" number="12.4.1">
+<h3><span class="header-section-number">12.4.1</span> Método de todas las regresiones posibles<a href="regresión-lineal-múltiple.html#m%C3%A9todo-de-todas-las-regresiones-posibles" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb144-1"><a href="regresión-lineal-múltiple.html#cb144-1" tabindex="-1"></a>todas_obj <span class="ot">&lt;-</span> <span class="fu">ols_step_all_possible</span>(rlm_vif)</span>
+<span id="cb144-2"><a href="regresión-lineal-múltiple.html#cb144-2" tabindex="-1"></a>todas <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is.data.frame</span>(todas_obj)) todas_obj <span class="cf">else</span> todas_obj<span class="sc">$</span>result</span>
+<span id="cb144-3"><a href="regresión-lineal-múltiple.html#cb144-3" tabindex="-1"></a>todas <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(todas) <span class="sc">%&gt;%</span></span>
+<span id="cb144-4"><a href="regresión-lineal-múltiple.html#cb144-4" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;predictors&quot;</span>, <span class="st">&quot;rsquare&quot;</span>, <span class="st">&quot;adjr&quot;</span>, <span class="st">&quot;cp&quot;</span>, <span class="st">&quot;aic&quot;</span>, <span class="st">&quot;sbc&quot;</span>)))</span>
+<span id="cb144-5"><a href="regresión-lineal-múltiple.html#cb144-5" tabindex="-1"></a></span>
+<span id="cb144-6"><a href="regresión-lineal-múltiple.html#cb144-6" tabindex="-1"></a><span class="fu">nrow</span>(todas)  <span class="co"># número de modelos evaluados</span></span></code></pre></div>
+<pre><code>## [1] 31</code></pre>
+<div class="sourceCode" id="cb146"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb146-1"><a href="regresión-lineal-múltiple.html#cb146-1" tabindex="-1"></a><span class="co"># Mejor modelo para cada número de variables (según R2 ajustado)</span></span>
+<span id="cb146-2"><a href="regresión-lineal-múltiple.html#cb146-2" tabindex="-1"></a>mejores_k <span class="ot">&lt;-</span> todas <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(n) <span class="sc">%&gt;%</span> <span class="fu">slice_max</span>(adjr, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>()</span>
+<span id="cb146-3"><a href="regresión-lineal-múltiple.html#cb146-3" tabindex="-1"></a>mejores_k <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Mejor modelo para cada número de variables&quot;</span>, <span class="at">d =</span> <span class="dv">3</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:todas-regresiones">Table 12.3: </span>Mejor modelo para cada número de variables</caption>
+<colgroup>
+<col width="3%" />
+<col width="50%" />
+<col width="9%" />
+<col width="6%" />
+<col width="10%" />
+<col width="10%" />
+<col width="10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">n</th>
+<th align="left">predictors</th>
+<th align="right">rsquare</th>
+<th align="right">adjr</th>
+<th align="right">cp</th>
+<th align="right">aic</th>
+<th align="right">sbc</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">Peso_caparazon</td>
+<td align="right">0.394</td>
+<td align="right">0.393</td>
+<td align="right">1077.727</td>
+<td align="right">19519.02</td>
+<td align="right">19538.03</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="left">Peso_carne Peso_caparazon</td>
+<td align="right">0.475</td>
+<td align="right">0.475</td>
+<td align="right">373.886</td>
+<td align="right">18918.14</td>
+<td align="right">18943.49</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">Largo Peso_carne Peso_caparazon</td>
+<td align="right">0.498</td>
+<td align="right">0.497</td>
+<td align="right">182.549</td>
+<td align="right">18738.58</td>
+<td align="right">18770.26</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="left">Sexo Largo Peso_carne Peso_caparazon</td>
+<td align="right">0.512</td>
+<td align="right">0.512</td>
+<td align="right">60.594</td>
+<td align="right">18619.90</td>
+<td align="right">18664.25</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">Sexo Largo Altura Peso_carne Peso_caparazon</td>
+<td align="right">0.519</td>
+<td align="right">0.518</td>
+<td align="right">7.000</td>
+<td align="right">18566.58</td>
+<td align="right">18617.26</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretacion:</strong>
+La tabla muestra que, al aumentar el número de variables, mejora la capacidad explicativa del modelo: el \(R^2\) ajustado aumenta de 0.393 a 0.518. El mejor modelo de cinco variables incluye Sexo, Largo, Altura, Peso_carne y Peso_caparazon, y presenta el menor valor de Cp (7.00) entre los modelos evaluados. Esto indica que estas variables ofrecen el mejor ajuste dentro de las alternativas comparadas.</p>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="regresión-lineal-múltiple.html#cb147-1" tabindex="-1"></a><span class="fu">plot</span>(todas_obj)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/grafico-todas-1.png" width="864" style="display: block; margin: auto;" /><img src="bookdown-demo_files/figure-html/grafico-todas-2.png" width="864" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretacion:</strong>
+Los gráficos muestran que, a medida que aumenta el número de variables explicativas, mejora el ajuste del modelo, reflejado en el incremento del \(R^2\) y del \(R^2\) ajustado. Asimismo, los criterios Cp, AIC, SBIC y SBC disminuyen, alcanzando sus valores más bajos en el modelo de cinco variables. Por lo tanto, los resultados respaldan la selección del modelo que incluye Sexo, Largo, Altura, Peso_carne y Peso_caparazon, ya que presenta el mejor ajuste entre los modelos evaluados.</p>
+</div>
+<div id="selección-secuencial-stepaic" class="section level3 hasAnchor" number="12.4.2">
+<h3><span class="header-section-number">12.4.2</span> Selección secuencial (stepAIC)<a href="regresión-lineal-múltiple.html#selecci%C3%B3n-secuencial-stepaic" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb148"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb148-1"><a href="regresión-lineal-múltiple.html#cb148-1" tabindex="-1"></a>rlm_nulo <span class="ot">&lt;-</span> <span class="fu">lm</span>(Anillos <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> abalone)</span>
+<span id="cb148-2"><a href="regresión-lineal-múltiple.html#cb148-2" tabindex="-1"></a>n_obs <span class="ot">&lt;-</span> <span class="fu">nrow</span>(abalone)</span>
+<span id="cb148-3"><a href="regresión-lineal-múltiple.html#cb148-3" tabindex="-1"></a></span>
+<span id="cb148-4"><a href="regresión-lineal-múltiple.html#cb148-4" tabindex="-1"></a>sel_forward  <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">stepAIC</span>(rlm_nulo, <span class="at">scope =</span> <span class="fu">list</span>(<span class="at">lower =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">upper =</span> <span class="fu">formula</span>(rlm_vif)),</span>
+<span id="cb148-5"><a href="regresión-lineal-múltiple.html#cb148-5" tabindex="-1"></a>                              <span class="at">direction =</span> <span class="st">&quot;forward&quot;</span>, <span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb148-6"><a href="regresión-lineal-múltiple.html#cb148-6" tabindex="-1"></a>sel_backward <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">stepAIC</span>(rlm_vif, <span class="at">direction =</span> <span class="st">&quot;backward&quot;</span>, <span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb148-7"><a href="regresión-lineal-múltiple.html#cb148-7" tabindex="-1"></a>sel_both     <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">stepAIC</span>(rlm_vif, <span class="at">direction =</span> <span class="st">&quot;both&quot;</span>, <span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb148-8"><a href="regresión-lineal-múltiple.html#cb148-8" tabindex="-1"></a>sel_bic      <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">stepAIC</span>(rlm_vif, <span class="at">direction =</span> <span class="st">&quot;both&quot;</span>, <span class="at">k =</span> <span class="fu">log</span>(n_obs), <span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb148-9"><a href="regresión-lineal-múltiple.html#cb148-9" tabindex="-1"></a></span>
+<span id="cb148-10"><a href="regresión-lineal-múltiple.html#cb148-10" tabindex="-1"></a>modelos_sel <span class="ot">&lt;-</span> <span class="fu">list</span>(sel_forward, sel_backward, sel_both, sel_bic)</span>
+<span id="cb148-11"><a href="regresión-lineal-múltiple.html#cb148-11" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb148-12"><a href="regresión-lineal-múltiple.html#cb148-12" tabindex="-1"></a>  <span class="at">Metodo =</span> <span class="fu">c</span>(<span class="st">&quot;Forward (AIC)&quot;</span>, <span class="st">&quot;Backward (AIC)&quot;</span>, <span class="st">&quot;Ambas direcciones (AIC)&quot;</span>,</span>
+<span id="cb148-13"><a href="regresión-lineal-múltiple.html#cb148-13" tabindex="-1"></a>             <span class="st">&quot;Ambas direcciones (BIC)&quot;</span>),</span>
+<span id="cb148-14"><a href="regresión-lineal-múltiple.html#cb148-14" tabindex="-1"></a>  <span class="at">Variables =</span> <span class="fu">map_chr</span>(modelos_sel, <span class="sc">~</span> <span class="fu">paste</span>(<span class="fu">attr</span>(<span class="fu">terms</span>(.x), <span class="st">&quot;term.labels&quot;</span>), <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)),</span>
+<span id="cb148-15"><a href="regresión-lineal-múltiple.html#cb148-15" tabindex="-1"></a>  <span class="at">R2_aj =</span> <span class="fu">map_dbl</span>(modelos_sel, <span class="sc">~</span> <span class="fu">summary</span>(.x)<span class="sc">$</span>adj.r.squared)</span>
+<span id="cb148-16"><a href="regresión-lineal-múltiple.html#cb148-16" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Resultados de la selección secuencial&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:stepwise">Table 12.4: </span>Resultados de la selección secuencial</caption>
+<colgroup>
+<col width="28%" />
+<col width="62%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Metodo</th>
+<th align="left">Variables</th>
+<th align="right">R2_aj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Forward (AIC)</td>
+<td align="left">Peso_caparazon + Peso_carne + Largo + Sexo + Altura</td>
+<td align="right">0.5179</td>
+</tr>
+<tr class="even">
+<td align="left">Backward (AIC)</td>
+<td align="left">Sexo + Largo + Altura + Peso_carne + Peso_caparazon</td>
+<td align="right">0.5179</td>
+</tr>
+<tr class="odd">
+<td align="left">Ambas direcciones (AIC)</td>
+<td align="left">Sexo + Largo + Altura + Peso_carne + Peso_caparazon</td>
+<td align="right">0.5179</td>
+</tr>
+<tr class="even">
+<td align="left">Ambas direcciones (BIC)</td>
+<td align="left">Sexo + Largo + Altura + Peso_carne + Peso_caparazon</td>
+<td align="right">0.5179</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb149-1"><a href="regresión-lineal-múltiple.html#cb149-1" tabindex="-1"></a>modelo_sel <span class="ot">&lt;-</span> sel_both</span>
+<span id="cb149-2"><a href="regresión-lineal-múltiple.html#cb149-2" tabindex="-1"></a><span class="fu">summary</span>(modelo_sel)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = Anillos ~ Sexo + Largo + Altura + Peso_carne + Peso_caparazon, 
+##     data = abalone)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -11.3845  -1.3401  -0.3560   0.8547  16.1167 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     3.854882   0.295813  13.031  &lt; 2e-16 ***
+## SexoMacho       0.046559   0.084864   0.549    0.583    
+## SexoInfante    -0.918970   0.103021  -8.920  &lt; 2e-16 ***
+## Largo           0.038617   0.004054   9.527  &lt; 2e-16 ***
+## Altura          0.058310   0.007820   7.456 1.08e-13 ***
+## Peso_carne     -0.058864   0.001951 -30.174  &lt; 2e-16 ***
+## Peso_caparazon  0.102846   0.003232  31.819  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.238 on 4164 degrees of freedom
+## Multiple R-squared:  0.5185, Adjusted R-squared:  0.5179 
+## F-statistic: 747.5 on 6 and 4164 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="regresión-lineal-múltiple.html#cb151-1" tabindex="-1"></a>vars_sel <span class="ot">&lt;-</span> <span class="fu">attr</span>(<span class="fu">terms</span>(modelo_sel), <span class="st">&quot;term.labels&quot;</span>)</span></code></pre></div>
+<p><strong>INTERPRETACIÓN</strong>
+Los resultados de la selección secuencial muestran que los cuatro métodos (Forward, Backward, ambas direcciones con AIC y BIC) coinciden en elegir las mismas cinco variables: Sexo, Largo, Altura, Peso_carne y Peso_caparazon, con un \(R^2\) ajustado de 0.5179. Al ajustar la regresión múltiple con estas variables, se obtiene un modelo estadísticamente significativo (p &lt; 0.001), que explica el 51.85 % de la variabilidad de los Anillos. Individualmente, Largo, Altura, Peso_carne, Peso_caparazon y SexoInfante son significativos, mientras que SexoMacho no presenta un efecto significativo. Estos resultados respaldan la elección del modelo de cinco variables.</p>
+</div>
+</div>
+<div id="diagnóstico-y-transformación-del-modelo-seleccionado" class="section level2 hasAnchor" number="12.5">
+<h2><span class="header-section-number">12.5</span> Diagnóstico y transformación del modelo seleccionado<a href="regresión-lineal-múltiple.html#diagn%C3%B3stico-y-transformaci%C3%B3n-del-modelo-seleccionado" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="regresión-lineal-múltiple.html#cb152-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb152-2"><a href="regresión-lineal-múltiple.html#cb152-2" tabindex="-1"></a><span class="fu">plot</span>(modelo_sel)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rlm-sel-diagnostico-1.png" width="864" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="regresión-lineal-múltiple.html#cb153-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb153-2"><a href="regresión-lineal-múltiple.html#cb153-2" tabindex="-1"></a>sup_sel <span class="ot">&lt;-</span> <span class="fu">pruebas_supuestos</span>(modelo_sel)</span>
+<span id="cb153-3"><a href="regresión-lineal-múltiple.html#cb153-3" tabindex="-1"></a>sup_sel <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Supuestos de la RLM seleccionada&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:rlm-sel-diagnostico">Table 12.5: </span>Supuestos de la RLM seleccionada</caption>
+<colgroup>
+<col width="20%" />
+<col width="27%" />
+<col width="12%" />
+<col width="8%" />
+<col width="30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Supuesto</th>
+<th align="left">Prueba</th>
+<th align="right">Estadistico</th>
+<th align="right">p_valor</th>
+<th align="left">Conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Normalidad</td>
+<td align="left">Shapiro-Wilk</td>
+<td align="right">0.9176</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Media cero</td>
+<td align="left">t de una muestra (mu = 0)</td>
+<td align="right">0.0000</td>
+<td align="right">1</td>
+<td align="left">Se cumple (no se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Varianza constante</td>
+<td align="left">Breusch-Pagan</td>
+<td align="right">435.9818</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Varianza constante</td>
+<td align="left">ncvTest (car)</td>
+<td align="right">832.4774</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Independencia</td>
+<td align="left">Durbin-Watson</td>
+<td align="right">1.4176</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+</tbody>
+</table>
+<p>Los gráficos y las pruebas indican que el modelo incumple varios supuestos: normalidad, varianza constante e independencia de los residuos, mientras que el supuesto de media cero sí se cumple. Además, se observan valores atípicos y posibles observaciones influyentes. Por tanto, aunque el modelo es estadísticamente significativo, sus resultados deben interpretarse con precaución.</p>
+<p>Por las mismas razones que en la RLS, se ajusta el modelo con <span class="math inline">\(\log(\text{Anillos})\)</span> como respuesta:</p>
+<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb154-1"><a href="regresión-lineal-múltiple.html#cb154-1" tabindex="-1"></a>rlm_log <span class="ot">&lt;-</span> <span class="fu">update</span>(modelo_sel, <span class="fu">log</span>(Anillos) <span class="sc">~</span> .)</span>
+<span id="cb154-2"><a href="regresión-lineal-múltiple.html#cb154-2" tabindex="-1"></a><span class="fu">summary</span>(rlm_log)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = log(Anillos) ~ Sexo + Largo + Altura + Peso_carne + 
+##     Peso_caparazon, data = abalone)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.37602 -0.13238 -0.01838  0.11190  0.84536 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     1.3454740  0.0271785  49.505   &lt;2e-16 ***
+## SexoMacho       0.0081284  0.0077971   1.042    0.297    
+## SexoInfante    -0.1007485  0.0094653 -10.644   &lt;2e-16 ***
+## Largo           0.0078120  0.0003724  20.976   &lt;2e-16 ***
+## Altura          0.0065618  0.0007185   9.132   &lt;2e-16 ***
+## Peso_carne     -0.0057355  0.0001792 -32.000   &lt;2e-16 ***
+## Peso_caparazon  0.0071157  0.0002970  23.961   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.2056 on 4164 degrees of freedom
+## Multiple R-squared:  0.5858, Adjusted R-squared:  0.5852 
+## F-statistic: 981.5 on 6 and 4164 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb156"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb156-1"><a href="regresión-lineal-múltiple.html#cb156-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb156-2"><a href="regresión-lineal-múltiple.html#cb156-2" tabindex="-1"></a><span class="fu">plot</span>(rlm_log)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rlm-log-1.png" width="864" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="regresión-lineal-múltiple.html#cb157-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb157-2"><a href="regresión-lineal-múltiple.html#cb157-2" tabindex="-1"></a></span>
+<span id="cb157-3"><a href="regresión-lineal-múltiple.html#cb157-3" tabindex="-1"></a>sup_log <span class="ot">&lt;-</span> <span class="fu">pruebas_supuestos</span>(rlm_log)</span>
+<span id="cb157-4"><a href="regresión-lineal-múltiple.html#cb157-4" tabindex="-1"></a>sup_log <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Supuestos de la RLM con log(Anillos)&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:rlm-log">Table 12.6: </span>Supuestos de la RLM con log(Anillos)</caption>
+<colgroup>
+<col width="20%" />
+<col width="27%" />
+<col width="12%" />
+<col width="8%" />
+<col width="30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Supuesto</th>
+<th align="left">Prueba</th>
+<th align="right">Estadistico</th>
+<th align="right">p_valor</th>
+<th align="left">Conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Normalidad</td>
+<td align="left">Shapiro-Wilk</td>
+<td align="right">0.9789</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Media cero</td>
+<td align="left">t de una muestra (mu = 0)</td>
+<td align="right">0.0000</td>
+<td align="right">1</td>
+<td align="left">Se cumple (no se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Varianza constante</td>
+<td align="left">Breusch-Pagan</td>
+<td align="right">389.7781</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="even">
+<td align="left">Varianza constante</td>
+<td align="left">ncvTest (car)</td>
+<td align="right">20.4182</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+<tr class="odd">
+<td align="left">Independencia</td>
+<td align="left">Durbin-Watson</td>
+<td align="right">1.3708</td>
+<td align="right">0</td>
+<td align="left">No se cumple (se rechaza H0)</td>
+</tr>
+</tbody>
+</table>
+<p>El modelo logarítmico es estadísticamente significativo (p &lt; 0,001) y explica el 58,58 % de la variabilidad de los Anillos, mejorando el ajuste del modelo anterior. Las variables SexoInfante, Largo, Altura, Peso_carne y Peso_caparazon son significativas, mientras que SexoMacho no lo es. En los gráficos de diagnóstico se observa una mejora en el comportamiento de los residuos, aunque persisten desviaciones de la normalidad, variaciones en la dispersión y observaciones atípicas e influyentes, especialmente la 2050. Por tanto, el modelo presenta un mejor ajuste, pero aún tiene algunas limitaciones en sus supuestos.</p>
+<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="regresión-lineal-múltiple.html#cb158-1" tabindex="-1"></a><span class="fu">acf</span>(<span class="fu">residuals</span>(rlm_log), <span class="at">main =</span> <span class="st">&quot;Autocorrelación de los residuos (RLM con log)&quot;</span>)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/rlm-log-acf-1.png" width="864" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretacion:</strong>
+El gráfico de autocorrelación de los residuos del modelo de regresión lineal múltiple (RLM) con transformación logarítmica muestra que las autocorrelaciones son positivas y significativas en varios rezagos, ya que superan las bandas de confianza. Esto indica que los residuos presentan dependencia entre sí, por lo que no se cumple el supuesto de independencia de los errores. En consecuencia, el modelo podría no estar capturando completamente la estructura de los datos.</p>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="regresión-lineal-múltiple.html#cb159-1" tabindex="-1"></a>modelo_final <span class="ot">&lt;-</span> rlm_log</span>
+<span id="cb159-2"><a href="regresión-lineal-múltiple.html#cb159-2" tabindex="-1"></a>es_log_final <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">&quot;^log</span><span class="sc">\\</span><span class="st">(&quot;</span>, <span class="fu">deparse</span>(<span class="fu">formula</span>(modelo_final)[[<span class="dv">2</span>]]))</span></code></pre></div>
+<p><strong>Interpretacion:</strong>
+El modelo de regresión lineal múltiple indica que el largo, la altura y el peso del caparazón presentan una relación positiva con el logaritmo del número de anillos, mientras que el peso de la carne y el sexo infantil muestran una relación negativa. El sexo masculino presenta una relación positiva muy pequeña. Estos resultados sugieren que las características físicas del abalón pueden estar relacionadas con su edad estimada; sin embargo, es necesario revisar la significancia estadística de los coeficientes para determinar cuáles variables tienen una relación significativa.</p>
+</div>
+<div id="identificación-de-atípicos-y-observaciones-influyentes" class="section level2 hasAnchor" number="12.6">
+<h2><span class="header-section-number">12.6</span> Identificación de atípicos y observaciones influyentes<a href="regresión-lineal-múltiple.html#identificaci%C3%B3n-de-at%C3%ADpicos-y-observaciones-influyentes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="regresión-lineal-múltiple.html#cb160-1" tabindex="-1"></a>n_f <span class="ot">&lt;-</span> <span class="fu">nobs</span>(modelo_final)</span>
+<span id="cb160-2"><a href="regresión-lineal-múltiple.html#cb160-2" tabindex="-1"></a></span>
+<span id="cb160-3"><a href="regresión-lineal-múltiple.html#cb160-3" tabindex="-1"></a><span class="co"># Residuos studentizados: |r| &gt; 3 indica atípico</span></span>
+<span id="cb160-4"><a href="regresión-lineal-múltiple.html#cb160-4" tabindex="-1"></a>r_stud <span class="ot">&lt;-</span> <span class="fu">rstudent</span>(modelo_final)</span>
+<span id="cb160-5"><a href="regresión-lineal-múltiple.html#cb160-5" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">abs</span>(r_stud) <span class="sc">&gt;</span> <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## [1] 33</code></pre>
+<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="regresión-lineal-múltiple.html#cb162-1" tabindex="-1"></a><span class="co"># Prueba de atípicos con corrección de Bonferroni</span></span>
+<span id="cb162-2"><a href="regresión-lineal-múltiple.html#cb162-2" tabindex="-1"></a><span class="fu">outlierTest</span>(modelo_final)</span></code></pre></div>
+<pre><code>##       rstudent unadjusted p-value Bonferroni p
+## 2050 -8.808691         1.8263e-18   7.6175e-15
+## 237  -6.758639         1.5860e-11   6.6152e-08</code></pre>
+<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb164-1"><a href="regresión-lineal-múltiple.html#cb164-1" tabindex="-1"></a><span class="co"># Distancia de Cook</span></span>
+<span id="cb164-2"><a href="regresión-lineal-múltiple.html#cb164-2" tabindex="-1"></a>cook <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(modelo_final)</span>
+<span id="cb164-3"><a href="regresión-lineal-múltiple.html#cb164-3" tabindex="-1"></a><span class="fu">sum</span>(cook <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">/</span> n_f)</span></code></pre></div>
+<pre><code>## [1] 199</code></pre>
+<div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb166-1"><a href="regresión-lineal-múltiple.html#cb166-1" tabindex="-1"></a>diag_inf <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> abalone<span class="sc">$</span>id, <span class="at">r_stud =</span> r_stud, <span class="at">cook =</span> cook)</span>
+<span id="cb166-2"><a href="regresión-lineal-múltiple.html#cb166-2" tabindex="-1"></a></span>
+<span id="cb166-3"><a href="regresión-lineal-múltiple.html#cb166-3" tabindex="-1"></a>diag_inf <span class="sc">%&gt;%</span></span>
+<span id="cb166-4"><a href="regresión-lineal-múltiple.html#cb166-4" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(cook)) <span class="sc">%&gt;%</span></span>
+<span id="cb166-5"><a href="regresión-lineal-múltiple.html#cb166-5" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb166-6"><a href="regresión-lineal-múltiple.html#cb166-6" tabindex="-1"></a>  <span class="fu">left_join</span>(abalone <span class="sc">%&gt;%</span> <span class="fu">select</span>(id, Sexo, <span class="fu">all_of</span>(predictores), Anillos), <span class="at">by =</span> <span class="st">&quot;id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb166-7"><a href="regresión-lineal-múltiple.html#cb166-7" tabindex="-1"></a>  <span class="fu">tabla</span>(<span class="st">&quot;Observaciones con mayor distancia de Cook&quot;</span>, <span class="at">d =</span> <span class="dv">3</span>)</span></code></pre></div>
+<table style="width:100%;">
+<caption><span id="tab:atipicos">Table 12.7: </span>Observaciones con mayor distancia de Cook</caption>
+<colgroup>
+<col width="4%" />
+<col width="6%" />
+<col width="6%" />
+<col width="7%" />
+<col width="5%" />
+<col width="8%" />
+<col width="6%" />
+<col width="5%" />
+<col width="10%" />
+<col width="13%" />
+<col width="14%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">id</th>
+<th align="right">r_stud</th>
+<th align="right">cook</th>
+<th align="left">Sexo</th>
+<th align="right">Largo</th>
+<th align="right">Diametro</th>
+<th align="right">Altura</th>
+<th align="right">Peso</th>
+<th align="right">Peso_carne</th>
+<th align="right">Peso_visceras</th>
+<th align="right">Peso_caparazon</th>
+<th align="right">Anillos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2052</td>
+<td align="right">-8.809</td>
+<td align="right">10.890</td>
+<td align="left">Hembra</td>
+<td align="right">91</td>
+<td align="right">71</td>
+<td align="right">226</td>
+<td align="right">118.8</td>
+<td align="right">66.4</td>
+<td align="right">23.2</td>
+<td align="right">26.7</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="right">237</td>
+<td align="right">-6.759</td>
+<td align="right">0.060</td>
+<td align="left">Infante</td>
+<td align="right">15</td>
+<td align="right">11</td>
+<td align="right">2</td>
+<td align="right">0.4</td>
+<td align="right">0.2</td>
+<td align="right">0.1</td>
+<td align="right">0.3</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="right">164</td>
+<td align="right">-2.705</td>
+<td align="right">0.029</td>
+<td align="left">Hembra</td>
+<td align="right">145</td>
+<td align="right">112</td>
+<td align="right">42</td>
+<td align="right">428.2</td>
+<td align="right">130.0</td>
+<td align="right">79.6</td>
+<td align="right">201.0</td>
+<td align="right">18</td>
+</tr>
+<tr class="even">
+<td align="right">1529</td>
+<td align="right">2.939</td>
+<td align="right">0.017</td>
+<td align="left">Macho</td>
+<td align="right">145</td>
+<td align="right">115</td>
+<td align="right">48</td>
+<td align="right">442.0</td>
+<td align="right">270.2</td>
+<td align="right">82.6</td>
+<td align="right">100.3</td>
+<td align="right">13</td>
+</tr>
+<tr class="odd">
+<td align="right">1418</td>
+<td align="right">-1.433</td>
+<td align="right">0.017</td>
+<td align="left">Macho</td>
+<td align="right">141</td>
+<td align="right">113</td>
+<td align="right">103</td>
+<td align="right">442.0</td>
+<td align="right">221.5</td>
+<td align="right">97.3</td>
+<td align="right">102.4</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="right">720</td>
+<td align="right">-4.009</td>
+<td align="right">0.012</td>
+<td align="left">Infante</td>
+<td align="right">30</td>
+<td align="right">20</td>
+<td align="right">5</td>
+<td align="right">3.0</td>
+<td align="right">0.9</td>
+<td align="right">0.8</td>
+<td align="right">1.0</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">3714</td>
+<td align="right">2.527</td>
+<td align="right">0.010</td>
+<td align="left">Macho</td>
+<td align="right">142</td>
+<td align="right">111</td>
+<td align="right">35</td>
+<td align="right">428.0</td>
+<td align="right">249.1</td>
+<td align="right">74.5</td>
+<td align="right">86.8</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="right">1210</td>
+<td align="right">2.081</td>
+<td align="right">0.010</td>
+<td align="left">Hembra</td>
+<td align="right">156</td>
+<td align="right">126</td>
+<td align="right">43</td>
+<td align="right">531.4</td>
+<td align="right">297.6</td>
+<td align="right">99.7</td>
+<td align="right">117.2</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="right">165</td>
+<td align="right">-1.997</td>
+<td align="right">0.009</td>
+<td align="left">Hembra</td>
+<td align="right">130</td>
+<td align="right">109</td>
+<td align="right">46</td>
+<td align="right">350.4</td>
+<td align="right">112.1</td>
+<td align="right">57.9</td>
+<td align="right">163.0</td>
+<td align="right">16</td>
+</tr>
+<tr class="even">
+<td align="right">2162</td>
+<td align="right">-1.828</td>
+<td align="right">0.008</td>
+<td align="left">Hembra</td>
+<td align="right">143</td>
+<td align="right">113</td>
+<td align="right">48</td>
+<td align="right">439.9</td>
+<td align="right">144.9</td>
+<td align="right">93.0</td>
+<td align="right">177.0</td>
+<td align="right">17</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretacion:</strong>
+El análisis de residuos identifica dos observaciones con valores atípicos significativos: las observaciones 2050 y 237, cuyos valores p ajustados por Bonferroni son inferiores a 0.05. Además, la observación 2052 presenta la mayor distancia de Cook (10.890), indicando una influencia considerable sobre el modelo. Esto sugiere que existen observaciones que pueden afectar significativamente el ajuste de la regresión, por lo que sería conveniente revisarlas antes de realizar conclusiones definitivas.</p>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="regresión-lineal-múltiple.html#cb167-1" tabindex="-1"></a><span class="fu">influenceIndexPlot</span>(modelo_final, <span class="at">vars =</span> <span class="fu">c</span>(<span class="st">&quot;Cook&quot;</span>, <span class="st">&quot;Studentized&quot;</span>, <span class="st">&quot;Bonf&quot;</span>),</span>
+<span id="cb167-2"><a href="regresión-lineal-múltiple.html#cb167-2" tabindex="-1"></a>                   <span class="at">main =</span> <span class="st">&quot;Diagnóstico de influencia del modelo final&quot;</span>)</span></code></pre></div>
+<p><img src="bookdown-demo_files/figure-html/grafico-influencia-1.png" width="864" style="display: block; margin: auto;" /></p>
+<p>El gráfico de diagnóstico muestra que la mayoría de las observaciones presentan una influencia baja sobre el modelo. Sin embargo, se destacan las observaciones 2050 y 237, que tienen residuos studentizados extremos y valores de distancia de Cook elevados, especialmente la observación 2050.</p>
+<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="regresión-lineal-múltiple.html#cb168-1" tabindex="-1"></a>ids_influyentes <span class="ot">&lt;-</span> diag_inf<span class="sc">$</span>id[diag_inf<span class="sc">$</span>cook <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">/</span> n_f]</span>
+<span id="cb168-2"><a href="regresión-lineal-múltiple.html#cb168-2" tabindex="-1"></a>modelo_sin_inf <span class="ot">&lt;-</span> <span class="fu">update</span>(modelo_final, <span class="at">data =</span> abalone <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span>id <span class="sc">%in%</span> ids_influyentes))</span>
+<span id="cb168-3"><a href="regresión-lineal-múltiple.html#cb168-3" tabindex="-1"></a></span>
+<span id="cb168-4"><a href="regresión-lineal-múltiple.html#cb168-4" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb168-5"><a href="regresión-lineal-múltiple.html#cb168-5" tabindex="-1"></a>  <span class="at">Termino =</span> <span class="fu">names</span>(<span class="fu">coef</span>(modelo_final)),</span>
+<span id="cb168-6"><a href="regresión-lineal-múltiple.html#cb168-6" tabindex="-1"></a>  <span class="at">Con_todos =</span> <span class="fu">coef</span>(modelo_final),</span>
+<span id="cb168-7"><a href="regresión-lineal-múltiple.html#cb168-7" tabindex="-1"></a>  <span class="at">Sin_influyentes =</span> <span class="fu">coef</span>(modelo_sin_inf)[<span class="fu">names</span>(<span class="fu">coef</span>(modelo_final))]</span>
+<span id="cb168-8"><a href="regresión-lineal-múltiple.html#cb168-8" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb168-9"><a href="regresión-lineal-múltiple.html#cb168-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Cambio_pct =</span> (Sin_influyentes <span class="sc">-</span> Con_todos) <span class="sc">/</span> <span class="fu">abs</span>(Con_todos) <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb168-10"><a href="regresión-lineal-múltiple.html#cb168-10" tabindex="-1"></a>  <span class="fu">tabla</span>(<span class="st">&quot;Coeficientes con y sin observaciones influyentes&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:sin-influyentes">Table 12.8: </span>Coeficientes con y sin observaciones influyentes</caption>
+<thead>
+<tr class="header">
+<th align="left">Termino</th>
+<th align="right">Con_todos</th>
+<th align="right">Sin_influyentes</th>
+<th align="right">Cambio_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.3455</td>
+<td align="right">1.3918</td>
+<td align="right">3.4457</td>
+</tr>
+<tr class="even">
+<td align="left">SexoMacho</td>
+<td align="right">0.0081</td>
+<td align="right">0.0102</td>
+<td align="right">25.9104</td>
+</tr>
+<tr class="odd">
+<td align="left">SexoInfante</td>
+<td align="right">-0.1007</td>
+<td align="right">-0.1009</td>
+<td align="right">-0.1736</td>
+</tr>
+<tr class="even">
+<td align="left">Largo</td>
+<td align="right">0.0078</td>
+<td align="right">0.0061</td>
+<td align="right">-21.5205</td>
+</tr>
+<tr class="odd">
+<td align="left">Altura</td>
+<td align="right">0.0066</td>
+<td align="right">0.0106</td>
+<td align="right">61.4110</td>
+</tr>
+<tr class="even">
+<td align="left">Peso_carne</td>
+<td align="right">-0.0057</td>
+<td align="right">-0.0058</td>
+<td align="right">-1.8840</td>
+</tr>
+<tr class="odd">
+<td align="left">Peso_caparazon</td>
+<td align="right">0.0071</td>
+<td align="right">0.0075</td>
+<td align="right">4.7290</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+Al comparar los coeficientes del modelo con todas las observaciones y sin las influyentes, se evidencia que algunas variables presentan cambios importantes. Destaca Altura, cuyo coeficiente aumenta un 61.41%, mientras que Largo disminuye un 21.52%. También se observa un cambio del 25.91% en SexoMacho. En contraste, SexoInfante y Peso_carne mantienen coeficientes prácticamente iguales.</p>
+</div>
+<div id="modelo-final-inferencia-e-interpretación" class="section level2 hasAnchor" number="12.7">
+<h2><span class="header-section-number">12.7</span> Modelo final: inferencia e interpretación<a href="regresión-lineal-múltiple.html#modelo-final-inferencia-e-interpretaci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="regresión-lineal-múltiple.html#cb169-1" tabindex="-1"></a><span class="fu">summary</span>(modelo_final)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = log(Anillos) ~ Sexo + Largo + Altura + Peso_carne + 
+##     Peso_caparazon, data = abalone)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.37602 -0.13238 -0.01838  0.11190  0.84536 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     1.3454740  0.0271785  49.505   &lt;2e-16 ***
+## SexoMacho       0.0081284  0.0077971   1.042    0.297    
+## SexoInfante    -0.1007485  0.0094653 -10.644   &lt;2e-16 ***
+## Largo           0.0078120  0.0003724  20.976   &lt;2e-16 ***
+## Altura          0.0065618  0.0007185   9.132   &lt;2e-16 ***
+## Peso_carne     -0.0057355  0.0001792 -32.000   &lt;2e-16 ***
+## Peso_caparazon  0.0071157  0.0002970  23.961   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.2056 on 4164 degrees of freedom
+## Multiple R-squared:  0.5858, Adjusted R-squared:  0.5852 
+## F-statistic: 981.5 on 6 and 4164 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="regresión-lineal-múltiple.html#cb171-1" tabindex="-1"></a>s_final <span class="ot">&lt;-</span> <span class="fu">summary</span>(modelo_final)</span>
+<span id="cb171-2"><a href="regresión-lineal-múltiple.html#cb171-2" tabindex="-1"></a><span class="fu">anova</span>(modelo_final)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: log(Anillos)
+##                  Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Sexo              2 102.405  51.203 1210.85 &lt; 2.2e-16 ***
+## Largo             1  89.019  89.019 2105.14 &lt; 2.2e-16 ***
+## Altura            1   7.283   7.283  172.24 &lt; 2.2e-16 ***
+## Peso_carne        1  26.044  26.044  615.89 &lt; 2.2e-16 ***
+## Peso_caparazon    1  24.279  24.279  574.14 &lt; 2.2e-16 ***
+## Residuals      4164 176.081   0.042                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb173-1"><a href="regresión-lineal-múltiple.html#cb173-1" tabindex="-1"></a>coef_final <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb173-2"><a href="regresión-lineal-múltiple.html#cb173-2" tabindex="-1"></a>  <span class="at">Termino =</span> <span class="fu">names</span>(<span class="fu">coef</span>(modelo_final)),</span>
+<span id="cb173-3"><a href="regresión-lineal-múltiple.html#cb173-3" tabindex="-1"></a>  <span class="at">Estimacion =</span> <span class="fu">coef</span>(modelo_final),</span>
+<span id="cb173-4"><a href="regresión-lineal-múltiple.html#cb173-4" tabindex="-1"></a>  <span class="at">Error_est =</span> <span class="fu">coef</span>(s_final)[, <span class="dv">2</span>],</span>
+<span id="cb173-5"><a href="regresión-lineal-múltiple.html#cb173-5" tabindex="-1"></a>  <span class="at">t =</span> <span class="fu">coef</span>(s_final)[, <span class="dv">3</span>],</span>
+<span id="cb173-6"><a href="regresión-lineal-múltiple.html#cb173-6" tabindex="-1"></a>  <span class="at">p_valor =</span> <span class="fu">coef</span>(s_final)[, <span class="dv">4</span>],</span>
+<span id="cb173-7"><a href="regresión-lineal-múltiple.html#cb173-7" tabindex="-1"></a>  <span class="at">IC95_inf =</span> <span class="fu">confint.default</span>(modelo_final)[, <span class="dv">1</span>],</span>
+<span id="cb173-8"><a href="regresión-lineal-múltiple.html#cb173-8" tabindex="-1"></a>  <span class="at">IC95_sup =</span> <span class="fu">confint.default</span>(modelo_final)[, <span class="dv">2</span>]</span>
+<span id="cb173-9"><a href="regresión-lineal-múltiple.html#cb173-9" tabindex="-1"></a>)</span>
+<span id="cb173-10"><a href="regresión-lineal-múltiple.html#cb173-10" tabindex="-1"></a><span class="cf">if</span> (es_log_final) {</span>
+<span id="cb173-11"><a href="regresión-lineal-múltiple.html#cb173-11" tabindex="-1"></a>  coef_final <span class="ot">&lt;-</span> coef_final <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Efecto_pct =</span> (<span class="fu">exp</span>(Estimacion) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb173-12"><a href="regresión-lineal-múltiple.html#cb173-12" tabindex="-1"></a>}</span>
+<span id="cb173-13"><a href="regresión-lineal-múltiple.html#cb173-13" tabindex="-1"></a>coef_final <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Coeficientes del modelo final&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:final-resumen">Table 12.9: </span>Coeficientes del modelo final</caption>
+<colgroup>
+<col width="18%" />
+<col width="13%" />
+<col width="12%" />
+<col width="10%" />
+<col width="9%" />
+<col width="10%" />
+<col width="10%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Termino</th>
+<th align="right">Estimacion</th>
+<th align="right">Error_est</th>
+<th align="right">t</th>
+<th align="right">p_valor</th>
+<th align="right">IC95_inf</th>
+<th align="right">IC95_sup</th>
+<th align="right">Efecto_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.3455</td>
+<td align="right">0.0272</td>
+<td align="right">49.5050</td>
+<td align="right">0.0000</td>
+<td align="right">1.2922</td>
+<td align="right">1.3987</td>
+<td align="right">284.0006</td>
+</tr>
+<tr class="even">
+<td align="left">SexoMacho</td>
+<td align="right">0.0081</td>
+<td align="right">0.0078</td>
+<td align="right">1.0425</td>
+<td align="right">0.2972</td>
+<td align="right">-0.0072</td>
+<td align="right">0.0234</td>
+<td align="right">0.8162</td>
+</tr>
+<tr class="odd">
+<td align="left">SexoInfante</td>
+<td align="right">-0.1007</td>
+<td align="right">0.0095</td>
+<td align="right">-10.6440</td>
+<td align="right">0.0000</td>
+<td align="right">-0.1193</td>
+<td align="right">-0.0822</td>
+<td align="right">-9.5840</td>
+</tr>
+<tr class="even">
+<td align="left">Largo</td>
+<td align="right">0.0078</td>
+<td align="right">0.0004</td>
+<td align="right">20.9761</td>
+<td align="right">0.0000</td>
+<td align="right">0.0071</td>
+<td align="right">0.0085</td>
+<td align="right">0.7843</td>
+</tr>
+<tr class="odd">
+<td align="left">Altura</td>
+<td align="right">0.0066</td>
+<td align="right">0.0007</td>
+<td align="right">9.1324</td>
+<td align="right">0.0000</td>
+<td align="right">0.0052</td>
+<td align="right">0.0080</td>
+<td align="right">0.6583</td>
+</tr>
+<tr class="even">
+<td align="left">Peso_carne</td>
+<td align="right">-0.0057</td>
+<td align="right">0.0002</td>
+<td align="right">-32.0002</td>
+<td align="right">0.0000</td>
+<td align="right">-0.0061</td>
+<td align="right">-0.0054</td>
+<td align="right">-0.5719</td>
+</tr>
+<tr class="odd">
+<td align="left">Peso_caparazon</td>
+<td align="right">0.0071</td>
+<td align="right">0.0003</td>
+<td align="right">23.9613</td>
+<td align="right">0.0000</td>
+<td align="right">0.0065</td>
+<td align="right">0.0077</td>
+<td align="right">0.7141</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb174"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb174-1"><a href="regresión-lineal-múltiple.html#cb174-1" tabindex="-1"></a><span class="co"># Texto para interpretar las dummies de Sexo (funciona con o sin log)</span></span>
+<span id="cb174-2"><a href="regresión-lineal-múltiple.html#cb174-2" tabindex="-1"></a>efecto_txt <span class="ot">&lt;-</span> <span class="cf">function</span>(termino) {</span>
+<span id="cb174-3"><a href="regresión-lineal-múltiple.html#cb174-3" tabindex="-1"></a>  b <span class="ot">&lt;-</span> coef_final<span class="sc">$</span>Estimacion[coef_final<span class="sc">$</span>Termino <span class="sc">==</span> termino]</span>
+<span id="cb174-4"><a href="regresión-lineal-múltiple.html#cb174-4" tabindex="-1"></a>  <span class="cf">if</span> (es_log_final) <span class="fu">paste0</span>(<span class="fu">fmt</span>((<span class="fu">exp</span>(b) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">&quot; % de anillos&quot;</span>)</span>
+<span id="cb174-5"><a href="regresión-lineal-múltiple.html#cb174-5" tabindex="-1"></a>  <span class="cf">else</span> <span class="fu">paste0</span>(<span class="fu">fmt</span>(b, <span class="dv">2</span>), <span class="st">&quot; anillos&quot;</span>)</span>
+<span id="cb174-6"><a href="regresión-lineal-múltiple.html#cb174-6" tabindex="-1"></a>}</span>
+<span id="cb174-7"><a href="regresión-lineal-múltiple.html#cb174-7" tabindex="-1"></a>p_term <span class="ot">&lt;-</span> <span class="cf">function</span>(termino) <span class="fu">fp</span>(coef_final<span class="sc">$</span>p_valor[coef_final<span class="sc">$</span>Termino <span class="sc">==</span> termino])</span>
+<span id="cb174-8"><a href="regresión-lineal-múltiple.html#cb174-8" tabindex="-1"></a></span>
+<span id="cb174-9"><a href="regresión-lineal-múltiple.html#cb174-9" tabindex="-1"></a><span class="fu">tabla_vif</span>(modelo_final) <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;VIF del modelo final&quot;</span>, <span class="at">d =</span> <span class="dv">2</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:final-resumen">Table 12.9: </span>VIF del modelo final</caption>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">VIF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sexo</td>
+<td align="right">1.22</td>
+</tr>
+<tr class="even">
+<td align="left">Largo</td>
+<td align="right">7.88</td>
+</tr>
+<tr class="odd">
+<td align="left">Altura</td>
+<td align="right">3.54</td>
+</tr>
+<tr class="even">
+<td align="left">Peso_carne</td>
+<td align="right">6.25</td>
+</tr>
+<tr class="odd">
+<td align="left">Peso_caparazon</td>
+<td align="right">6.74</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+El modelo de regresión lineal múltiple es estadísticamente significativo (p &lt; 0.001) y explica aproximadamente el 58.58% de la variabilidad del logaritmo del número de anillos. Las variables SexoInfante, Largo, Altura, Peso_carne y Peso_caparazon presentan relaciones estadísticamente significativas con la variable respuesta. En cambio, SexoMacho no resulta significativa (p = 0.2972), por lo que no se evidencia una diferencia estadística respecto a la categoría de referencia.
+El largo, la altura y el peso del caparazón tienen efectos positivos, mientras que el peso de la carne presenta un efecto negativo. Además, el análisis de VIF muestra que Largo, Peso_carne y Peso_caparazon presentan valores relativamente elevados, lo que sugiere cierta multicolinealidad entre las variables físicas, aunque no necesariamente severa.
+En conjunto, el modelo tiene una capacidad explicativa moderada y permite identificar características asociadas con la edad estimada del abalón.</p>
+</div>
+<div id="inferencia-para-la-respuesta-intervalos-de-confianza-y-predicción" class="section level2 hasAnchor" number="12.8">
+<h2><span class="header-section-number">12.8</span> Inferencia para la respuesta: intervalos de confianza y predicción<a href="regresión-lineal-múltiple.html#inferencia-para-la-respuesta-intervalos-de-confianza-y-predicci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Se predice el número de anillos de un abulón “típico” de cada sexo (medianas de cada variable dentro del grupo).</p>
+<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb175-1"><a href="regresión-lineal-múltiple.html#cb175-1" tabindex="-1"></a>vars_num_final <span class="ot">&lt;-</span> <span class="fu">intersect</span>(predictores, <span class="fu">all.vars</span>(<span class="fu">formula</span>(modelo_final)))</span>
+<span id="cb175-2"><a href="regresión-lineal-múltiple.html#cb175-2" tabindex="-1"></a>nuevos <span class="ot">&lt;-</span> abalone <span class="sc">%&gt;%</span></span>
+<span id="cb175-3"><a href="regresión-lineal-múltiple.html#cb175-3" tabindex="-1"></a>  <span class="fu">group_by</span>(Sexo) <span class="sc">%&gt;%</span></span>
+<span id="cb175-4"><a href="regresión-lineal-múltiple.html#cb175-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(vars_num_final), median), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
+<span id="cb175-5"><a href="regresión-lineal-múltiple.html#cb175-5" tabindex="-1"></a></span>
+<span id="cb175-6"><a href="regresión-lineal-múltiple.html#cb175-6" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">if</span> (es_log_final) exp <span class="cf">else</span> identity</span>
+<span id="cb175-7"><a href="regresión-lineal-múltiple.html#cb175-7" tabindex="-1"></a>pred_ic <span class="ot">&lt;-</span> <span class="fu">back</span>(<span class="fu">predict</span>(modelo_final, nuevos, <span class="at">interval =</span> <span class="st">&quot;confidence&quot;</span>))</span>
+<span id="cb175-8"><a href="regresión-lineal-múltiple.html#cb175-8" tabindex="-1"></a>pred_ip <span class="ot">&lt;-</span> <span class="fu">back</span>(<span class="fu">predict</span>(modelo_final, nuevos, <span class="at">interval =</span> <span class="st">&quot;prediction&quot;</span>))</span>
+<span id="cb175-9"><a href="regresión-lineal-múltiple.html#cb175-9" tabindex="-1"></a></span>
+<span id="cb175-10"><a href="regresión-lineal-múltiple.html#cb175-10" tabindex="-1"></a>pred_tabla <span class="ot">&lt;-</span> nuevos <span class="sc">%&gt;%</span></span>
+<span id="cb175-11"><a href="regresión-lineal-múltiple.html#cb175-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb175-12"><a href="regresión-lineal-múltiple.html#cb175-12" tabindex="-1"></a>    <span class="at">Anillos_est =</span> pred_ic[, <span class="st">&quot;fit&quot;</span>],</span>
+<span id="cb175-13"><a href="regresión-lineal-múltiple.html#cb175-13" tabindex="-1"></a>    <span class="at">IC_inf =</span> pred_ic[, <span class="st">&quot;lwr&quot;</span>], <span class="at">IC_sup =</span> pred_ic[, <span class="st">&quot;upr&quot;</span>],</span>
+<span id="cb175-14"><a href="regresión-lineal-múltiple.html#cb175-14" tabindex="-1"></a>    <span class="at">IP_inf =</span> pred_ip[, <span class="st">&quot;lwr&quot;</span>], <span class="at">IP_sup =</span> pred_ip[, <span class="st">&quot;upr&quot;</span>],</span>
+<span id="cb175-15"><a href="regresión-lineal-múltiple.html#cb175-15" tabindex="-1"></a>    <span class="at">Edad_est =</span> Anillos_est <span class="sc">+</span> <span class="fl">1.5</span></span>
+<span id="cb175-16"><a href="regresión-lineal-múltiple.html#cb175-16" tabindex="-1"></a>  )</span>
+<span id="cb175-17"><a href="regresión-lineal-múltiple.html#cb175-17" tabindex="-1"></a>pred_tabla <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Predicciones del modelo final para un abulón típico de cada sexo&quot;</span>, <span class="at">d =</span> <span class="dv">2</span>)</span></code></pre></div>
+<table style="width:100%;">
+<caption><span id="tab:rlm-prediccion">Table 12.10: </span>Predicciones del modelo final para un abulón típico de cada sexo</caption>
+<colgroup>
+<col width="8%" />
+<col width="6%" />
+<col width="7%" />
+<col width="11%" />
+<col width="15%" />
+<col width="12%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Sexo</th>
+<th align="right">Largo</th>
+<th align="right">Altura</th>
+<th align="right">Peso_carne</th>
+<th align="right">Peso_caparazon</th>
+<th align="right">Anillos_est</th>
+<th align="right">IC_inf</th>
+<th align="right">IC_sup</th>
+<th align="right">IP_inf</th>
+<th align="right">IP_sup</th>
+<th align="right">Edad_est</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Hembra</td>
+<td align="right">118</td>
+<td align="right">32</td>
+<td align="right">88.10</td>
+<td align="right">59.0</td>
+<td align="right">10.93</td>
+<td align="right">10.81</td>
+<td align="right">11.06</td>
+<td align="right">7.30</td>
+<td align="right">16.36</td>
+<td align="right">12.43</td>
+</tr>
+<tr class="even">
+<td align="left">Macho</td>
+<td align="right">116</td>
+<td align="right">31</td>
+<td align="right">84.35</td>
+<td align="right">55.2</td>
+<td align="right">10.72</td>
+<td align="right">10.61</td>
+<td align="right">10.84</td>
+<td align="right">7.16</td>
+<td align="right">16.05</td>
+<td align="right">12.22</td>
+</tr>
+<tr class="odd">
+<td align="left">Infante</td>
+<td align="right">87</td>
+<td align="right">22</td>
+<td align="right">33.85</td>
+<td align="right">22.6</td>
+<td align="right">7.66</td>
+<td align="right">7.57</td>
+<td align="right">7.74</td>
+<td align="right">5.11</td>
+<td align="right">11.46</td>
+<td align="right">9.16</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+Las predicciones del modelo muestran que, para las características físicas seleccionadas, las hembras presentan una estimación de 10.93 anillos, los machos de 10.72 y los infantes de 7.66. Al sumar 1.5, se obtiene una edad estimada de 12.43 años para las hembras, 12.22 para los machos y 9.16 para los infantes. Los intervalos de confianza son relativamente estrechos, mientras que los intervalos de predicción son más amplios, reflejando la variabilidad esperada en individuos específicos. En general, el modelo estima una edad mayor para hembras y machos que para los infantes.</p>
+</div>
+<div id="comparación-entre-los-modelos" class="section level2 hasAnchor" number="12.9">
+<h2><span class="header-section-number">12.9</span> Comparación entre los modelos<a href="regresión-lineal-múltiple.html#comparaci%C3%B3n-entre-los-modelos" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb176"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb176-1"><a href="regresión-lineal-múltiple.html#cb176-1" tabindex="-1"></a>resumen_modelo <span class="ot">&lt;-</span> <span class="cf">function</span>(m, nombre) {</span>
+<span id="cb176-2"><a href="regresión-lineal-múltiple.html#cb176-2" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary</span>(m)</span>
+<span id="cb176-3"><a href="regresión-lineal-múltiple.html#cb176-3" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb176-4"><a href="regresión-lineal-múltiple.html#cb176-4" tabindex="-1"></a>    <span class="at">Modelo =</span> nombre,</span>
+<span id="cb176-5"><a href="regresión-lineal-múltiple.html#cb176-5" tabindex="-1"></a>    <span class="at">Respuesta =</span> <span class="fu">deparse</span>(<span class="fu">formula</span>(m)[[<span class="dv">2</span>]]),</span>
+<span id="cb176-6"><a href="regresión-lineal-múltiple.html#cb176-6" tabindex="-1"></a>    <span class="at">Predictores =</span> <span class="fu">length</span>(<span class="fu">coef</span>(m)) <span class="sc">-</span> <span class="dv">1</span>,</span>
+<span id="cb176-7"><a href="regresión-lineal-múltiple.html#cb176-7" tabindex="-1"></a>    <span class="at">R2 =</span> s<span class="sc">$</span>r.squared,</span>
+<span id="cb176-8"><a href="regresión-lineal-múltiple.html#cb176-8" tabindex="-1"></a>    <span class="at">R2_aj =</span> s<span class="sc">$</span>adj.r.squared,</span>
+<span id="cb176-9"><a href="regresión-lineal-múltiple.html#cb176-9" tabindex="-1"></a>    <span class="at">Sigma =</span> s<span class="sc">$</span>sigma</span>
+<span id="cb176-10"><a href="regresión-lineal-múltiple.html#cb176-10" tabindex="-1"></a>  )</span>
+<span id="cb176-11"><a href="regresión-lineal-múltiple.html#cb176-11" tabindex="-1"></a>}</span>
+<span id="cb176-12"><a href="regresión-lineal-múltiple.html#cb176-12" tabindex="-1"></a></span>
+<span id="cb176-13"><a href="regresión-lineal-múltiple.html#cb176-13" tabindex="-1"></a>comparacion <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb176-14"><a href="regresión-lineal-múltiple.html#cb176-14" tabindex="-1"></a>  <span class="fu">resumen_modelo</span>(rls, <span class="st">&quot;RLS&quot;</span>),</span>
+<span id="cb176-15"><a href="regresión-lineal-múltiple.html#cb176-15" tabindex="-1"></a>  <span class="fu">resumen_modelo</span>(rlm_completo, <span class="st">&quot;RLM completo&quot;</span>),</span>
+<span id="cb176-16"><a href="regresión-lineal-múltiple.html#cb176-16" tabindex="-1"></a>  <span class="fu">resumen_modelo</span>(rlm_vif, <span class="st">&quot;RLM sin multicolinealidad&quot;</span>),</span>
+<span id="cb176-17"><a href="regresión-lineal-múltiple.html#cb176-17" tabindex="-1"></a>  <span class="fu">resumen_modelo</span>(modelo_sel, <span class="st">&quot;RLM seleccionado&quot;</span>),</span>
+<span id="cb176-18"><a href="regresión-lineal-múltiple.html#cb176-18" tabindex="-1"></a>  <span class="fu">resumen_modelo</span>(rls_log, <span class="st">&quot;RLS log-log&quot;</span>),</span>
+<span id="cb176-19"><a href="regresión-lineal-múltiple.html#cb176-19" tabindex="-1"></a>  <span class="fu">resumen_modelo</span>(rlm_log, <span class="st">&quot;RLM seleccionado con log&quot;</span>)</span>
+<span id="cb176-20"><a href="regresión-lineal-múltiple.html#cb176-20" tabindex="-1"></a>)</span>
+<span id="cb176-21"><a href="regresión-lineal-múltiple.html#cb176-21" tabindex="-1"></a>comparacion <span class="sc">%&gt;%</span> <span class="fu">tabla</span>(<span class="st">&quot;Comparación de los modelos&quot;</span>, <span class="at">d =</span> <span class="dv">4</span>)</span></code></pre></div>
+<table style="width:100%;">
+<caption><span id="tab:comparacion-modelos">Table 12.11: </span>Comparación de los modelos</caption>
+<colgroup>
+<col width="36%" />
+<col width="18%" />
+<col width="16%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Modelo</th>
+<th align="left">Respuesta</th>
+<th align="right">Predictores</th>
+<th align="right">R2</th>
+<th align="right">R2_aj</th>
+<th align="right">Sigma</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">RLS</td>
+<td align="left">Anillos</td>
+<td align="right">1</td>
+<td align="right">0.3936</td>
+<td align="right">0.3934</td>
+<td align="right">2.5104</td>
+</tr>
+<tr class="even">
+<td align="left">RLM completo</td>
+<td align="left">Anillos</td>
+<td align="right">9</td>
+<td align="right">0.5402</td>
+<td align="right">0.5392</td>
+<td align="right">2.1881</td>
+</tr>
+<tr class="odd">
+<td align="left">RLM sin multicolinealidad</td>
+<td align="left">Anillos</td>
+<td align="right">6</td>
+<td align="right">0.5185</td>
+<td align="right">0.5179</td>
+<td align="right">2.2382</td>
+</tr>
+<tr class="even">
+<td align="left">RLM seleccionado</td>
+<td align="left">Anillos</td>
+<td align="right">6</td>
+<td align="right">0.5185</td>
+<td align="right">0.5179</td>
+<td align="right">2.2382</td>
+</tr>
+<tr class="odd">
+<td align="left">RLS log-log</td>
+<td align="left">log(Anillos)</td>
+<td align="right">1</td>
+<td align="right">0.5468</td>
+<td align="right">0.5467</td>
+<td align="right">0.2150</td>
+</tr>
+<tr class="even">
+<td align="left">RLM seleccionado con log</td>
+<td align="left">log(Anillos)</td>
+<td align="right">6</td>
+<td align="right">0.5858</td>
+<td align="right">0.5852</td>
+<td align="right">0.2056</td>
+</tr>
+</tbody>
+</table>
+<p><strong>INTERPRETACIÓN</strong>
+La comparación muestra que el modelo de regresión lineal simple (RLS) con la variable Anillos explica el 39.36% de la variabilidad, mientras que el modelo de regresión lineal múltiple completo mejora su capacidad explicativa hasta un 54.02%. Al aplicar la transformación logarítmica, el modelo RLS log-log alcanza un R² de 54.68%, y el modelo RLM seleccionado con logaritmo obtiene el mejor resultado, con un R² de 58.58% y un R² ajustado de 58.52%. Además, presenta el menor error residual (Sigma = 0.2056). Por tanto, el modelo RLM seleccionado con transformación logarítmica ofrece el mejor ajuste entre los modelos comparados.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="regresión-lineal-simple.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="conclusiones.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": "https://github.com/rstudio/bookdown-demo/edit/master/index.Rmd",
+    "text": "Edit"
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["bookdown-demo.pdf", "bookdown-demo.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
